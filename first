@@ -1078,9 +1078,14 @@ def set_daemons():
 	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable bluetooth'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable cronie'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable ModemManager'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned-ppd'])
+	
+	if GNOME_BASIC == True:
+		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
+	if PLASMA_BASIC == True:
+		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
+   pass 
    
 def main():
 	STEP = 1
