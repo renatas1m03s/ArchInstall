@@ -1,0 +1,9 @@
+base
+linux-firmware
+linux
+linux-headers
+dkms
+base-devel
+amd-ucode
+intel-ucode
+reflector

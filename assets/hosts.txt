@@ -1,0 +1,9 @@
+ 
+*127.0.0.1     localhost.localdomain localhost
+::1            localhost.localdomain localhost
+127.0.0.1      #HOSTNAME
+
+# Intranet da LLK - Acessível via VPN
+
+10.85.1.36     intranet
+10.85.1.72     llk85s20042
