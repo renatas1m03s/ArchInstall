@@ -22,4 +22,4 @@ pacman -Sy --noconfirm git python-blessed p7zip
 
 git clone https://github.com/renatas1m03s/ArchInstall /root/ArchInstall
 
-echo -e "\n\n#### All read to start setup - Just run ./first \n"
+/root/ArchInstall/first &

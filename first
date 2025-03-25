@@ -1085,12 +1085,11 @@ def set_daemons():
 		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
 	if PLASMA_BASIC == True:
 		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
-   pass 
+	pass 
    
 def main():
 	STEP = 1
 	position = list((0,0))
-	selected_items= list(("phoenix",)) # to avoid every single letter as a item use double round-brackets and a coma at the end
 
 	term = blessed.Terminal()
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
