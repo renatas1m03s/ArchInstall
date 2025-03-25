@@ -10,16 +10,16 @@
 
 echo -e "\n\n########################################################\n\n    Preparing system for ArchLinux\n\n########################################################\n\n"
 
-mkdir -v /root/ArchSetup
-mount -t tmpfs -o size=1024m ArchSetup /root/ArchSetup
-mount | grep ArchSetup
+mkdir -v /root/ArchInstall
+mount -t tmpfs -o size=1024m ArchSetup /root/ArchInstall
+mount | grep ArchInstall
 sleep 5
 
 pacman -Sy --noconfirm archlinux-keyring
 pacman-key --init
 pacman-key --populate archlinux
-pacman -Sy --noconfirm git
+pacman -Sy --noconfirm git python-blessed p7zip
 
-git clone https://github.com/renatas1m03s/New-ArchSetup /root/ArchSetup
+git clone https://github.com/renatas1m03s/ArchInstall /root/ArchInstall
 
-echo -e "\n\n#### System prepared, now just execute \"sh /root/ArchSetup/first.sh\" script...\n"
+echo -e "\n\n#### All read to start setup - Just run ./first \n"
