@@ -27,7 +27,7 @@ YES_OR_NO = ['Yes','No']
 
 PROCEED_OR_ABORT = ['Proceed','Abort']
 
-PROGRAM_TITLE = 'Arch Linux Install Wizard - v0.1' 
+PROGRAM_TITLE = 'Arch Linux Install Wizard - v0.11' 
 
 WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
 				' ',
