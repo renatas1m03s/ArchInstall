@@ -1026,6 +1026,9 @@ def chroot_packages():
 	pass 
 
 def set_regional_settings():
+	XCOMPOSE_FILE = PATH + 'assets/XCompose'
+	XCOMPOSE_PATH = '/mnt/home/' + USERNAME + '/.XCompose'
+	
 	subprocess.run(['sh', '-c','arch-chroot /mnt ln -sf /usr/share/zoneinfo/' + TIME_ZONE + ' /etc/localtime'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-ntp 1'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-timezone ' + TIME_ZONE])
@@ -1037,6 +1040,10 @@ def set_regional_settings():
 	subprocess.run(['sh', '-c','echo KEYMAP=' + KEYBOARD_CONFIG + ' >> /mnt/etc/vconsole.conf'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt localectl'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl'])
+	if KEYBOARD_CONFIG == 'us-acentos':
+		subprocess.run(['sh', '-c','echo "GTK_IM_MODULE=cedilla\nQT_IM_MODULE=cedilla" >> /mnt/etc/environment'])
+		subprocess.run(['sh', '-c','cp -v ' + XCOMPOSE_FILE + ' ' + XCOMPOSE_PATH ])
+	pass 
 
 def set_hosts_files(): # Set hostname and config hosts file
 	SAMPLE_HOSTS = 'assets/hosts.txt'
