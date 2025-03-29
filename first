@@ -1026,10 +1026,6 @@ def chroot_packages():
 	pass 
 
 def set_regional_settings():
-#	XCOMPOSE_FILE = PATH + 'assets/XCompose'
-#	XCOMPOSE_PATH = '/mnt/home/' + USERNAME + '/.XCompose'
-#	LOCALE_SETTINGS_FILE = PATH + 'assets/locale.conf'
-	
 	subprocess.run(['sh', '-c','arch-chroot /mnt ln -sf /usr/share/zoneinfo/' + TIME_ZONE + ' /etc/localtime'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-ntp 1'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-timezone ' + TIME_ZONE])
@@ -1037,17 +1033,11 @@ def set_regional_settings():
 	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#' + LANG + '/' + LANG + '/g /etc/locale.gen'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt locale-gen'])
 	subprocess.run(['sh', '-c','echo LANG=' + LANG + ' >> /mnt/etc/locale.conf'])
-	subprocess.run(['sh', '-c','echo KEYMAP=' + KEYBOARD_CONFIG + ' >> /mnt/etc/vconsole.conf'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt localectl set-keymap ' + KEYBOARD_CONFIG])
-	subprocess.run(['sh', '-c','arch-chroot /mnt localectl'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl'])
-	
-#	with open(LOCALE_SETTINGS_FILE,'a')	as file:
-#		file.write('KEYBOARD ' + KEYBOARD_CONFIG)
+	subprocess.run(['sh', '-c','localectl set-keymap ' + KEYBOARD_CONFIG])\
+	subprocess.run(['sh', '-c','cp -v /etc/vconsole.conf /mnt/etc/vconsole.conf'])
 		
 	if KEYBOARD_CONFIG == 'us-acentos':
 		subprocess.run(['sh', '-c','echo "GTK_IM_MODULE=cedilla\nQT_IM_MODULE=cedilla" >> /mnt/etc/environment'])
-#		subprocess.run(['sh', '-c','cp -v ' + XCOMPOSE_FILE + ' ' + XCOMPOSE_PATH ])
 	pass 
 
 def set_hosts_files(): # Set hostname and config hosts file
