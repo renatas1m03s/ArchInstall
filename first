@@ -1103,16 +1103,15 @@ def set_second_autostart():
 	try:
 		os.makedirs(AUTOSTART_PATH)
 		print(f"Nested directories '{AUTOSTART_PATH}' created successfully.")
-		with OPEN(AUTOSTART_FILE, 'a') as FILE:
-			for i, line in enumerate(SECOND_DESKTOP):
-				FILE.writelines(line)
 	except FileExistsError:
 		print(f"One or more directories in '{AUTOSTART_PATH}' already exist.")
 	except PermissionError:
 		print(f"Permission denied: Unable to create '{AUTOSTART_PATH}'.")
 	except Exception as e:
 		print(f"An error occurred: {e}")
-	
+	with open(AUTOSTART_FILE, 'a') as FILE:
+		for i, line in enumerate(SECOND_DESKTOP):
+			FILE.writelines(line)
 	pass 
    
 def main():
