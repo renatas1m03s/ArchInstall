@@ -1026,23 +1026,28 @@ def chroot_packages():
 	pass 
 
 def set_regional_settings():
-	XCOMPOSE_FILE = PATH + 'assets/XCompose'
-	XCOMPOSE_PATH = '/mnt/home/' + USERNAME + '/.XCompose'
+#	XCOMPOSE_FILE = PATH + 'assets/XCompose'
+#	XCOMPOSE_PATH = '/mnt/home/' + USERNAME + '/.XCompose'
+#	LOCALE_SETTINGS_FILE = PATH + 'assets/locale.conf'
 	
 	subprocess.run(['sh', '-c','arch-chroot /mnt ln -sf /usr/share/zoneinfo/' + TIME_ZONE + ' /etc/localtime'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-ntp 1'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-timezone ' + TIME_ZONE])
-	subprocess.run(['sh', '-c','arch-chroot /mnt localectl set-keymap ' + KEYBOARD_CONFIG])
 	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#pt_BR.UTF-8/pt_BR.UTF-8/g /etc/locale.gen'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#' + LANG + '/' + LANG + '/g /etc/locale.gen'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt locale-gen'])
 	subprocess.run(['sh', '-c','echo LANG=' + LANG + ' >> /mnt/etc/locale.conf'])
 	subprocess.run(['sh', '-c','echo KEYMAP=' + KEYBOARD_CONFIG + ' >> /mnt/etc/vconsole.conf'])
+	subprocess.run(['sh', '-c','arch-chroot /mnt localectl set-keymap ' + KEYBOARD_CONFIG])
 	subprocess.run(['sh', '-c','arch-chroot /mnt localectl'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl'])
+	
+#	with open(LOCALE_SETTINGS_FILE,'a')	as file:
+#		file.write('KEYBOARD ' + KEYBOARD_CONFIG)
+		
 	if KEYBOARD_CONFIG == 'us-acentos':
 		subprocess.run(['sh', '-c','echo "GTK_IM_MODULE=cedilla\nQT_IM_MODULE=cedilla" >> /mnt/etc/environment'])
-		subprocess.run(['sh', '-c','cp -v ' + XCOMPOSE_FILE + ' ' + XCOMPOSE_PATH ])
+#		subprocess.run(['sh', '-c','cp -v ' + XCOMPOSE_FILE + ' ' + XCOMPOSE_PATH ])
 	pass 
 
 def set_hosts_files(): # Set hostname and config hosts file
@@ -1067,7 +1072,8 @@ def set_hosts_files(): # Set hostname and config hosts file
      
 def set_pass(): # Create main user and set root password
 	subprocess.run(['sh', '-c','arch-chroot /mnt useradd -m -g users -G wheel -c \'' + DISPLAY_USERNAME + '\' -s /usr/bin/fish -d /home/' + USERNAME + ' '+ USERNAME])
-	subprocess.run(['sh', '-c','cp -r '+ os.path.dirname(__file__) + ' /mnt/home/' + USERNAME + '/'])
+	subprocess.run(['sh', '-c','mkdir /mnt/home/' + USERNAME + '/ArchInstall'])
+	subprocess.run(['sh', '-c','cp -Rv ' + os.path.dirname(__file__) + '/* /mnt/home/' + USERNAME + '/ArchInstall/'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/setpass.sh \''+PASSWORD0+'\' '+USERNAME])
 	print('Press any key')
 	pass
@@ -1169,15 +1175,15 @@ def main():
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring hosts and hostname files')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_hosts_files()
+							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring language, keyboard and timezone')
+							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+							set_regional_settings()
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Creating user')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pass()
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring grub')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_bootloader()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring language, keyboard and timezone')
-							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-							set_regional_settings()
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Finishing configuration')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_daemons()

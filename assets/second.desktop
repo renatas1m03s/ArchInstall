@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=gnome-terminal --geometry=90x40 -- /home/renata/Temp/Python/Misc/blessed_choices.py && exit
+Icon=application-x-shellscript
+Name=Teste Autostart
+Terminal=false
+Type=Application
+X-KDE-AutostartScript=true
