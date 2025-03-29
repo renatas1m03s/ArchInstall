@@ -11,10 +11,12 @@
 echo -e "\n\n########################################################\n\n    Preparing system for ArchLinux\n\n########################################################\n\n"
 
 echo -e "\n############ Mounting RAM Drive ############\n"
-mkdir -v /root/ArchInstall
+
+mkdir /root/ArchInstall
 mount -t tmpfs -o size=1024m ArchSetup /root/ArchInstall
-mount | grep ArchInstall
 sleep 2
+
+echo -e "\n############ Installing dependencies ############\n"
 
 pacman -Sy --noconfirm archlinux-keyring
 pacman-key --init

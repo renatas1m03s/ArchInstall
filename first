@@ -1033,7 +1033,7 @@ def set_regional_settings():
 	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#' + LANG + '/' + LANG + '/g /etc/locale.gen'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt locale-gen'])
 	subprocess.run(['sh', '-c','echo LANG=' + LANG + ' >> /mnt/etc/locale.conf'])
-	subprocess.run(['sh', '-c','localectl set-keymap ' + KEYBOARD_CONFIG])\
+	subprocess.run(['sh', '-c','localectl set-keymap ' + KEYBOARD_CONFIG])
 	subprocess.run(['sh', '-c','cp -v /etc/vconsole.conf /mnt/etc/vconsole.conf'])
 		
 	if KEYBOARD_CONFIG == 'us-acentos':
@@ -1088,6 +1088,31 @@ def set_daemons():
 		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
 	if PLASMA_BASIC == True:
 		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
+	pass 
+
+def set_second_autostart():
+	AUTOSTART_PATH = '/mnt/home/' + USERNAME + '/.config/autostart'
+	AUTOSTART_FILE = AUTOSTART_PATH + '/second.desktop'
+	SECOND_DESKTOP = ['[Desktop Entry]\n',
+					  'Exec=gnome-terminal --geometry=90x40 -- /home/' + USERNAME + '/ArchInstall/second && exit\n',
+					  'Icon=application-x-shellscript\n',
+					  'Name=Teste Autostart\n',
+					  'Terminal=false\n',
+					  'Type=Application\n',
+					  'X-KDE-AutostartScript=true\n' ]
+	try:
+		os.makedirs(AUTOSTART_PATH)
+		print(f"Nested directories '{AUTOSTART_PATH}' created successfully.")
+		with OPEN(AUTOSTART_FILE, 'a') as FILE:
+			for i, line in enumerate(SECOND_DESKTOP):
+				FILE.writelines(line)
+	except FileExistsError:
+		print(f"One or more directories in '{AUTOSTART_PATH}' already exist.")
+	except PermissionError:
+		print(f"Permission denied: Unable to create '{AUTOSTART_PATH}'.")
+	except Exception as e:
+		print(f"An error occurred: {e}")
+	subprocess.run(['sh', '-c','cp -v ' + AUTOSTART_FILE + ' ' + AUTOSTART_PATH + '/'])
 	pass 
    
 def main():
@@ -1181,7 +1206,8 @@ def main():
 							set_msfonts()
 							set_telaicons()
 							set_plymouth()
-							set_fish_functions() # This function correct home folder permissions - need to be the last one
+							set_second_autostart()
+							set_fish_functions() # This function set home folder permissions - need to be the last one
 							print('\nSetup finished...\n\nPress any key...\n\n')
 							with term.cbreak(), term.hidden_cursor():
 								key = term.inkey()
