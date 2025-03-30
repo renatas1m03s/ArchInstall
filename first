@@ -58,7 +58,7 @@ SYSTEM_OPTIONS = ['LTS Kernel',
                   'NVidia combo - For systems with GPUs NVidia',
                   'GNOME Basic - Minimal options - file manager, terminal, tweaks...',
                   'Plasma/KDE Basic -  Minimal options - file manager, terminal...',
-                  'Internet Browser - CHROMIUM',
+                  'Internet Browser - Chromium',
                   'Internet Browser - Firefox browser',
                   'Email Client - Thunderbird',                
                   'Office Suite - Libreoffice',
@@ -152,7 +152,6 @@ def initial_args(argv):
 		LANG = 'en_US.UTF-8'
 		TIME_ZONE = 'Etc/GMT0'
 		KEYBOARD_CONFIG = 'us-acentos'
-		
 		
 def permanent_title(term, program_title): # Defines a header with three lines
 
@@ -794,6 +793,109 @@ def system_options(term, position, SYSTEM_OPTIONS):
 				finish =  False
 				return True
 
+def disk_definition():
+	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = format_home = '0'
+	mount_root = mount_boot = mount_efi = mount_home = mkdir_boot = mkdir_efi = mkdir_home = mkswapfile = swapon = '0'
+
+	disk_commands = list(('The following changes will be made at disks:'. ' '))
+	
+	if SYSTEMDISK.find('nvme') == -1:
+		if FORMAT_HOME3 == False:
+			efi_number = '1'
+			boot_number = '2'
+			root_number = '3'
+			home_number = '4'
+		else:
+			efi_number = '1'
+			root_number = '2'
+			home_number = '3'
+	else:
+		if FORMAT_HOME3 == False:						
+			efi_number = 'p1'
+			boot_number = 'p2'
+			root_number = 'p3'
+			home_number = 'p4'
+		else:
+			efi_number = 'p1'
+			root_number = 'p2'
+			home_number = 'p3'
+	if ERASEDISK:
+		if SYSTEMDISK.find('nvme') == -1:
+			efi_number = '1'
+			root_number = '2'
+		else:						
+			efi_number = 'p1'
+			root_number = 'p2'
+		create_gpt_label      = 'Create a new GPT Label on ' + SYSTEMDISK + ' (Erase all disk)'
+		create_efi_partition  = 'Create a EFI primary partition on ' + SYSTEMDISK + ' with 650MiB'
+		create_root_partition = 'Create a root primary partition on  ' + SYSTEMDISK + ' allocating the restanting free space'
+		format_efi            = 'Format with FAT32 ' + SYSTEMDISK + efi_number + ' device and mount at /boot/efi'
+		format_root           = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /'
+	else:
+		if FORMAT_EFI:
+			format_efi = 'Format with FAT32 ' + SYSTEMDISK + efi_number + ' device and mount at /boot/efi'
+		if FORMAT_BOOT:
+			format_boot = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /boot'
+		if FORMAT_ROOT:
+			format_root = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /'
+		if FORMAT_HOME or FORMAT_HOME3:
+			format_home = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /home'
+		mount_root = 'mount ' + SYSTEMDISK + root_number + ' /mnt'			
+		if FORMAT_HOME3 ==  False:
+			mkdir_boot = 'mkdir /mnt/boot'
+			mount_boot = 'mount ' + SYSTEMDISK + boot_number + ' /mnt/boot'
+		mkdir_efi  = 'mkdir -p /mnt/boot/efi'
+		mount_efi  = 'mount ' + SYSTEMDISK + efi_number + ' /mnt/boot/efi'
+		mkdir_home = 'mkdir /mnt/home'
+		mount_home = 'mount ' + SYSTEMDISK + home_number + ' /mnt/home'
+
+	mkswapfile = 'Create and enable swapfile (' + MEM + ') /swapfile'
+
+	for verify_disk_options in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
+		if verify_disk_options != '0':
+			disk_commands.append(verify_disk_options)
+ 
+	x = time.localtime()
+	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
+
+	if os.path.isdir('/mnt/home/'+USERNAME): # Checks the existence of user home folder and rename it
+		disk_commands.append('Rename /home/' + USERNAME + ' to /home/'+USERNAME+'.'+sufix)
+	return disk_commands
+
+def packages_definition():
+	SELECTED_PACKAGES = list(('This packages will be installed: ',' '))
+
+	if LTS == True:
+		SELECTED_PACKAGES.append(' - LTS Kernel')
+	if ZEN == True:
+		SELECTED_PACKAGES.append(' - ZEN Kernel')
+	if MESA == True:
+		SELECTED_PACKAGES.append(' - Mesa combo - For systems with GPUs/iGPUS AMD or Intel')
+	if NVIDIA == True:
+		SELECTED_PACKAGES.append(' - NVidia combo - For systems with GPUs NVidia')
+	if GNOME_BASIC == True:
+		SELECTED_PACKAGES.append(' - GNOME Basic - Minimal options - file manager, terminal, tweaks...')
+	if PLASMA_BASIC == True:
+		SELECTED_PACKAGES.append(' - Plasma/KDE Basic -  Minimal options - file manager, terminal...')
+	if CHROMIUM == True:
+		SELECTED_PACKAGES.append(' - Internet Browser - Chromium')
+	if FIREFOX == True:
+		SELECTED_PACKAGES.append(' - Internet Browser - Firefox browser')
+	if THUNDERBIRD == True:
+		SELECTED_PACKAGES.append(' - Email Client - Thunderbird')
+	if LIBREOFFICE == True:
+		SELECTED_PACKAGES.append(' - Office Suite - Libreoffice')
+	if VLC == True:
+		SELECTED_PACKAGES.append(' - Video Player - VLC')
+	if GEANY == True:
+		SELECTED_PACKAGES.append(' - Text Editor - Geany and plugins')
+	if CONKY == True:
+		SELECTED_PACKAGES.append(' - System Monitor - Conky')
+	if EXTRAS == True:
+		SELECTED_PACKAGES.append(' - Usefull extras - p7zip, btop and yt-dlp')
+	return SELECTED_PACKAGES
+
+
 def confirm_options(term, position):
 	USER_INFO=['Main user: ' + USERNAME,
 		       'Display name: ' + DISPLAY_USERNAME,
@@ -802,34 +904,14 @@ def confirm_options(term, position):
 		       'Time Zone: ' + TIME_ZONE,
 		       'Keyboard config: ' + KEYBOARD_CONFIG]
 	
-	DISK_PARAMETERS=['System Disk: ' + SYSTEMDISK,
-					 'Erase disk: ' + str(ERASEDISK),
-					 'Format EFI:'  + str(FORMAT_EFI),
-					 'Format Boot:'  + str(FORMAT_BOOT),
-					 'Format Root:'  + str(FORMAT_ROOT),
-					 'Format Home:'  + str(FORMAT_HOME),   
-					 'Format Home3:'  + str(FORMAT_HOME3)]
-
-	SELECTED_PACKAGES=['Kernel LTS: ' + str(LTS),
-					   'Kernel ZEN: ' + str(ZEN),
-					   'Combo Mesa: ' + str(MESA),
-					   'Combo NVIDIA: ' + str(NVIDIA),
-					   'Gnome: ' + str(GNOME_BASIC),
-					   'Plasma: ' + str(PLASMA_BASIC),
-					   'CHROMIUM: ' + str(CHROMIUM),
-					   'Firefox: ' + str(FIREFOX),
-					   'Thunderbird: ' + str(THUNDERBIRD),
-					   'Libreoffice: ' + str(LIBREOFFICE),
-					   'VLC: ' + str(VLC),
-					   'Geany: ' + str(GEANY),
-					   'Conky: ' + str(CONKY),
-					   'Extras: ' + str(EXTRAS)]
-
+	DISK_COMMANDS = disk_definition()
+	SELECTED_PACKAGES = packages_definition()
+	
 	position = resolve_uw_display(term,1)
 	text_print_list(term, position, USER_INFO)
 
 	position = resolve_uw_display(term,1)
-	text_print_list(term, position, DISK_PARAMETERS)
+	text_print_list(term, position, DISK_COMMANDS)
 
 	position = resolve_uw_display(term,1)
 	text_print_list(term, position, SELECTED_PACKAGES)
