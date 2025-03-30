@@ -72,7 +72,7 @@ PATH = os.path.dirname(__file__)+'/'
 DISK_SETUP_WELCOME = 'Moment 1 - Non destructive - Define disk options'
 
 def initial_args(argv):
-	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0
+	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP
 
 	PASSWORD0 = '0'
 
@@ -83,6 +83,14 @@ def initial_args(argv):
 			match parameter.lower():
 				case '-h':
 					print('Usage mode: first -s hostname -c "display user name" -u username -p password')
+					SYSTEM = 'generic'
+					USERNAME = 'archlinux'
+					DISPLAY_USERNAME = 'Arch Linux'
+					HOSTNAME = 'arch'
+					LANG = 'en_US.UTF-8'
+					TIME_ZONE = 'Etc/GMT0'
+					KEYBOARD_CONFIG = 'us-acentos'
+					STEP = 10
 				case '-s':
 					if i+1 < len(sys.argv):
 						HOSTNAME = sys.argv[i+1]
@@ -1124,6 +1132,7 @@ def set_second_autostart():
 	pass 
    
 def main():
+	global STEP
 	STEP = 1
 	position = list((0,0))
 
