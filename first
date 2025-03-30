@@ -145,6 +145,7 @@ def initial_args(argv):
 			KEYBOARD_CONFIG = 'us-acentos'
 
 	else:
+		SYSTEM = 'generic'
 		USERNAME = 'archlinux'
 		DISPLAY_USERNAME = 'Arch Linux'
 		HOSTNAME = 'arch'
