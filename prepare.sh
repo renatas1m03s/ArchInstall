@@ -27,4 +27,4 @@ echo -e "\n############ Downloading setup wizard files ############\n"
 
 git clone https://github.com/renatas1m03s/ArchInstall /root/ArchInstall
 
-echo -e "\n\n#### All ready to start - Just run './ArchInstall/first' \n"
+echo -e "\n\n#### All ready to start - Run:\n './ArchInstall/first' for generic options, or.\n './ArchInstall/first -s hostname -c \"display user name\" -u username -p password' parameters self-explained, or\n  './ArchInstall/first -h' for help"
