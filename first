@@ -36,15 +36,6 @@ WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
 				'2 - Destructive - Format partions and install system.',
 				' ',]
 
-SYSTEM_CHOICES = ['Generic - Custom install, no default options.',
-				  'Sagittarius - Desktop PC, AMD CPU and  GPU.',
-				  'Phoenix - Laptop, Intel CPU and NVIDIA GPU.',
-				  'Rubik - ASUS Rog Ally handheld.',
-				  'Linuxtest - QEMU VM.',
-				  'Details - Print info about every option.']
-				  
-DISK_SETUP_WELCOME = 'Moment 1 - Non destructive - Define disk options'
-
 DISK_OPTIONS = ['EFI,Boot,Root and Home topology. Format EFI, Boot and Root (preserv Home).',
 				'EFI,Boot,Root and Home topology. Format Boot and Root (preserv EFI and Home).',
 				'EFI,Boot,Root and Home topology.Format EFI, Boot, Root and Home.',
@@ -61,8 +52,6 @@ DISK_OPTIONS4 = ['Format/Mount partition 1 as EFI (FAT32)?',
 				 'Format/Mount partition 4 as Home (EXT4)?',
 				 'Erase disk and create/format EFI (512MiB) and Root partition using entire disk.']
 
-PATH = os.path.dirname(__file__)+'/'
-
 SYSTEM_OPTIONS = ['LTS Kernel',
                   'ZEN Kernel',
                   'Mesa combo - For systems with GPUs/iGPUS AMD or Intel',
@@ -78,13 +67,37 @@ SYSTEM_OPTIONS = ['LTS Kernel',
                   'System Monitor - Conky',
                   'Usefull extras - p7zip, btop and yt-dlp']
 
+PATH = os.path.dirname(__file__)+'/'
+
+DISK_SETUP_WELCOME = 'Moment 1 - Non destructive - Define disk options'
+
 def initial_args(argv):
-	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION
+	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0
+
+	PASSWORD0 = '0'
 
 	KNOW_SYSTEMS = ['sagittarius','phoenix','rubik','linuxtest']
 
 	if len(sys.argv) > 1:
-		SYSTEM = sys.argv[1].lower().replace('\n','')
+		for i, parameter in enumerate(sys.argv):
+			match parameter.lower():
+				case '-h':
+					print('Usage mode: first -s hostname -c "display user name" -u username -p password')
+				case '-s':
+					if i+1 < len(sys.argv):
+						HOSTNAME = sys.argv[i+1]
+				case '-c':
+					if i+1 < len(sys.argv):
+						DISPLAY_NAME = sys.argv[i+1]
+				case '-u':
+					if i+1 < len(sys.argv):
+						USERNAME = sys.argv[i+1]
+				case '-p':
+					if i+1 < len(sys.argv):
+						PASSWORD0 = sys.argv[i+1]
+						
+		SYSTEM = HOSTNAME
+		
 		if SYSTEM in KNOW_SYSTEMS:
 			if SYSTEM == 'sagittarius':
 				USERNAME = 'renata'
@@ -93,7 +106,6 @@ def initial_args(argv):
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
 				KEYBOARD_CONFIG = 'us-acentos'
-				SYSTEM_OPTION = SYSTEM_CHOICES[1]
 			if SYSTEM == 'phoenix':
 				USERNAME = 'renata'
 				DISPLAY_USERNAME = 'Renata Maria'
@@ -101,7 +113,6 @@ def initial_args(argv):
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
 				KEYBOARD_CONFIG = 'br-abnt2'
-				SYSTEM_OPTION = SYSTEM_CHOICES[2]
 			if SYSTEM == 'rubik':
 				USERNAME = 'renata'
 				DISPLAY_USERNAME = 'Renata Maria'
@@ -109,7 +120,6 @@ def initial_args(argv):
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
 				KEYBOARD_CONFIG = 'br-abnt2'
-				SYSTEM_OPTION = SYSTEM_CHOICES[3]
 			if SYSTEM == 'linuxtest':
 				USERNAME = 'renata'
 				DISPLAY_USERNAME = 'Renata Maria'
@@ -117,25 +127,23 @@ def initial_args(argv):
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
 				KEYBOARD_CONFIG = 'us-acentos'
-				SYSTEM_OPTION = SYSTEM_CHOICES[4]
 		else:
 			SYSTEM = 'generic'
-			USERNAME = 'jane'
-			DISPLAY_USERNAME = 'Jane Doe'
-			HOSTNAME = SYSTEM
+			USERNAME = 'archlinux'
+			DISPLAY_USERNAME = 'Arch Linux'
+			HOSTNAME = 'arch'
 			LANG = 'en_US.UTF-8'
 			TIME_ZONE = 'Etc/GMT0'
 			KEYBOARD_CONFIG = 'us-acentos'
-			SYSTEM_OPTION = SYSTEM_CHOICES[0]
+
 	else:
-		SYSTEM = 'generic'
-		USERNAME = 'jane'
-		DISPLAY_USERNAME = 'Jane Doe'
-		HOSTNAME = SYSTEM
+		USERNAME = 'archlinux'
+		DISPLAY_USERNAME = 'Arch Linux'
+		HOSTNAME = 'arch'
 		LANG = 'en_US.UTF-8'
 		TIME_ZONE = 'Etc/GMT0'
 		KEYBOARD_CONFIG = 'us-acentos'
-		SYSTEM_OPTION = SYSTEM_CHOICES[0]
+		
 		
 def permanent_title(term, program_title): # Defines a header with three lines
 
@@ -531,7 +539,7 @@ def set_timezone(term,position):
 
 def set_password(term, position):
 	global PASSWORD0
-	PASSWORD0 = 0
+
 	PASSWORD1 = 1
 	
 	while PASSWORD0!=PASSWORD1:	
@@ -608,7 +616,8 @@ def user_info(term, position):
 		else:
 			if selected_item == YES_OR_NO[0]:
 				position = resolve_uw_display(term,1)
-				set_password(term, position)
+				if PASSWORD0 == '0':
+					set_password(term, position)
 				finish = True
 				return True
 			else:
