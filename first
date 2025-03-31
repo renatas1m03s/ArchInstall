@@ -1029,21 +1029,16 @@ def chroot_packages(term):
 	                    
 	ALL_PACKAGES_KEYS = ALL_PACKAGES.keys()
 	
-	try:
-		with open(PACKAGES_FILE_PATH) as file:
-			PACKAGES_DAT = file.readlines()
-			for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT):
-				for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS):
-					if ALL_PACKAGES[ALL_PACKAGES_KEYS_LINE]:
-						if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1:
-							PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
-							PACKAGES = PACKAGES + PACKAGES_SWAP.replace('\n','')
-	except Exception:
-		print(PACKAGES_FILE_PATH + ' File not found')
 
-	print(PACKAGES)
-	with term.cbreak(), term.hidden_cursor():
-		key = term.inkey()
+	with open(PACKAGES_FILE_PATH) as file:
+		PACKAGES_DAT = file.readlines()
+		for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT):
+			for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS):
+				if ALL_PACKAGES[ALL_PACKAGES_KEYS_LINE]:
+					if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1:
+						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
+						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
+
 	subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt pacman -Sy --noconfirm --needed ' + PACKAGES])
 	pass 
