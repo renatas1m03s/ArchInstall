@@ -39,18 +39,18 @@ WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
 DISK_OPTIONS = ['EFI,Boot,Root and Home topology. Format EFI, Boot and Root (preserv Home).',
 				'EFI,Boot,Root and Home topology. Format Boot and Root (preserv EFI and Home).',
 				'EFI,Boot,Root and Home topology.Format EFI, Boot, Root and Home.',
-				'Erase disk and create/format EFI (512MiB) and Root partition using entire disk.']
+				'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
 
 DISK_OPTIONS3 = ['Format/Mount partition 1 as EFI (FAT32)?',
 				 'Format/Mount partition 2 as Root (EXT4)?',
 				 'Format/Mount partition 3 as Home (EXT4)?',
-				 'Erase disk and create/format EFI (512MiB) and Root partition using entire disk.']
+				 'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
 
 DISK_OPTIONS4 = ['Format/Mount partition 1 as EFI (FAT32)?',
 				 'Format/Mount partition 2 as Boot (EXT4)?',
 				 'Format/Mount partition 3 as Root (EXT4)?',
 				 'Format/Mount partition 4 as Home (EXT4)?',
-				 'Erase disk and create/format EFI (512MiB) and Root partition using entire disk.']
+				 'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
 
 SYSTEM_OPTIONS = ['LTS Kernel',
                   'ZEN Kernel',
@@ -792,12 +792,14 @@ def system_options(term, position, SYSTEM_OPTIONS):
 					EXTRAS = True
 				finish =  False
 				return True
+		else:
+			return False
 
-def disk_definition():
+def disk_definition(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = format_home = '0'
 	mount_root = mount_boot = mount_efi = mount_home = mkdir_boot = mkdir_efi = mkdir_home = mkswapfile = swapon = '0'
 
-	disk_commands = list(('The following changes will be made at disks:'. ' '))
+	disk_commands = list((term.bold('The following changes will be made at disks:'),' '))
 	
 	if SYSTEMDISK.find('nvme') == -1:
 		if FORMAT_HOME3 == False:
@@ -826,44 +828,33 @@ def disk_definition():
 		else:						
 			efi_number = 'p1'
 			root_number = 'p2'
-		create_gpt_label      = 'Create a new GPT Label on ' + SYSTEMDISK + ' (Erase all disk)'
-		create_efi_partition  = 'Create a EFI primary partition on ' + SYSTEMDISK + ' with 650MiB'
-		create_root_partition = 'Create a root primary partition on  ' + SYSTEMDISK + ' allocating the restanting free space'
-		format_efi            = 'Format with FAT32 ' + SYSTEMDISK + efi_number + ' device and mount at /boot/efi'
-		format_root           = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /'
+		create_gpt_label      = 'Create a new GPT Label on ' + term.bold(SYSTEMDISK) + ' (Erase all disk)'
+		create_efi_partition  = 'Create a EFI primary partition on ' + term.bold(SYSTEMDISK) + ' with 650MiB'
+		create_root_partition = 'Create a root primary partition on  ' + term.bold(SYSTEMDISK) + ' on free space available'
+		format_efi            = 'Format device ' + term.bold(SYSTEMDISK + efi_number) + ' as FAT32 and mount at ' + term.bold('/boot/efi')
+		format_root           = 'Format device ' + term.bold(SYSTEMDISK + root_number) + ' as EXT4 and mount at ' + term.bold('/')
 	else:
 		if FORMAT_EFI:
-			format_efi = 'Format with FAT32 ' + SYSTEMDISK + efi_number + ' device and mount at /boot/efi'
+			format_efi = 'Format device ' + term.bold(SYSTEMDISK + efi_number) + ' as FAT32 and mount at ' + term.bold('/boot/efi')
 		if FORMAT_BOOT:
-			format_boot = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /boot'
+			format_boot = 'Format device ' + term.bold(SYSTEMDISK + boot_number) + ' as EXT4 and mount at ' + term.bold('/boot')
 		if FORMAT_ROOT:
-			format_root = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /'
+			format_root = 'Format device ' + term.bold(SYSTEMDISK + root_number) + ' as EXT4 and mount at ' + term.bold('/')
 		if FORMAT_HOME or FORMAT_HOME3:
-			format_home = 'Format with EXT4 ' + SYSTEMDISK + root_number + ' device and mount at /home'
-		mount_root = 'mount ' + SYSTEMDISK + root_number + ' /mnt'			
-		if FORMAT_HOME3 ==  False:
-			mkdir_boot = 'mkdir /mnt/boot'
-			mount_boot = 'mount ' + SYSTEMDISK + boot_number + ' /mnt/boot'
-		mkdir_efi  = 'mkdir -p /mnt/boot/efi'
-		mount_efi  = 'mount ' + SYSTEMDISK + efi_number + ' /mnt/boot/efi'
-		mkdir_home = 'mkdir /mnt/home'
-		mount_home = 'mount ' + SYSTEMDISK + home_number + ' /mnt/home'
+			format_home = 'Format device ' + term.bold(SYSTEMDISK + home_number) + ' as EXT4 and mount at ' + term.bold('/home')
+		else:
+			mount_home = 'Mount ' + term.bold(SYSTEMDISK + home_number) + ' at ' + term.bold('/home')
 
-	mkswapfile = 'Create and enable swapfile (' + MEM + ') /swapfile'
+	mkswapfile = 'Create and enable swapfile (size=' + MEM + ')'
 
 	for verify_disk_options in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
 		if verify_disk_options != '0':
 			disk_commands.append(verify_disk_options)
- 
-	x = time.localtime()
-	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
 
-	if os.path.isdir('/mnt/home/'+USERNAME): # Checks the existence of user home folder and rename it
-		disk_commands.append('Rename /home/' + USERNAME + ' to /home/'+USERNAME+'.'+sufix)
 	return disk_commands
 
-def packages_definition():
-	SELECTED_PACKAGES = list(('This packages will be installed: ',' '))
+def packages_definition(term):
+	SELECTED_PACKAGES = list((term.bold('This packages will be installed:'),' '))
 
 	if LTS == True:
 		SELECTED_PACKAGES.append(' - LTS Kernel')
@@ -895,17 +886,18 @@ def packages_definition():
 		SELECTED_PACKAGES.append(' - Usefull extras - p7zip, btop and yt-dlp')
 	return SELECTED_PACKAGES
 
-
 def confirm_options(term, position):
-	USER_INFO=['Main user: ' + USERNAME,
-		       'Display name: ' + DISPLAY_USERNAME,
-		       'Hostname: ' + HOSTNAME,
-		       'System locale: ' + LANG,
-		       'Time Zone: ' + TIME_ZONE,
-		       'Keyboard config: ' + KEYBOARD_CONFIG]
+	USER_INFO=[term.bold('User and system definitions:'),
+			   '  ',
+			   'Main user: ' + term.bold(USERNAME),
+		       'Display name: ' + term.bold(DISPLAY_USERNAME),
+		       'Hostname: ' + term.bold(HOSTNAME),
+		       'System locale: ' + term.bold(LANG),
+		       'Time Zone: ' + term.bold(TIME_ZONE),
+		       'Keyboard config: ' + term.bold(KEYBOARD_CONFIG)]
 	
-	DISK_COMMANDS = disk_definition()
-	SELECTED_PACKAGES = packages_definition()
+	DISK_COMMANDS = disk_definition(term)
+	SELECTED_PACKAGES = packages_definition(term)
 	
 	position = resolve_uw_display(term,1)
 	text_print_list(term, position, USER_INFO)
@@ -1269,8 +1261,8 @@ def main():
 						else:
 							STEP-=1
 					case 5:
-						position = resolve_uw_display(term,2)
-						proceed_or_abort = choices_horizontal_menu(term, position, PROCEED_OR_ABORT, term.blink(term.bold('WARNING!!! Next step will detroy all data on ' + SYSTEMDISK)) + term.clear_eos())
+						position = resolve_uw_display(term,1)
+						proceed_or_abort = choices_horizontal_menu(term, position, PROCEED_OR_ABORT, term.blink(term.bold('WARNING!!! Next step start destructive moment')) + term.clear_eos())
 						if proceed_or_abort == PROCEED_OR_ABORT[0]:
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring storage')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
@@ -1312,6 +1304,8 @@ def main():
 							with term.cbreak(), term.hidden_cursor():
 								key = term.inkey()
 							STEP+=1
+						else:
+							STEP-=2
 					case _:
 						break
 		except KeyboardInterrupt:

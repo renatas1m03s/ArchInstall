@@ -219,13 +219,13 @@ def choices_multiple_options(term, position, menu, title = None, selected_items 
 		if key.name == 'KEY_ENTER':
 			if selected_items[0] == '0':
 				print(term.move_yx(y+3,x)+'Nothing is selected, this is correct?')	
-				x = x+term.length(term.move_yx(y+3,x)+'No option selected, this is correct?')+2
+				x = x+term.length(term.move_yx(y+3,x)+'Nothing is selected, this is correct?')+2
 				position[0]=y+3
 				position[1]=x
 				yes_or_no=choices_horizontal_menu(term, position,YES_OR_NO)
 				if yes_or_no==YES_OR_NO[0]:
 					encerra = False
-					return selected_items
+					return '0'
 			else:
 				encerra = False
 				return selected_items
