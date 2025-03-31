@@ -1020,99 +1020,30 @@ def set_pacman(): # Execute before arch-chroot - Enable multilib, parallel downl
 	subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'])
 	pass
 	
-def chroot_packages():
+def chroot_packages(term):
+	PACKAGES_FILE_PATH = PATH + 'misc/first-packages.dat'
 	PACKAGES = ''
-
-	if PACKAGES == '':
-		PACKAGES = read_files('misc/base.dat')
-	else:				
-		PACKAGES_SWAP = read_files('misc/base.dat')
-		PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP	
+	ALL_PACKAGES = {'BASE': True, 'LTS':LTS, 'ZEN':ZEN, 'MESA':MESA, 'NVIDIA':'NVIDIA', 'GNOME_BASIC':GNOME_BASIC,
+	                'PLASMA_BASIC':PLASMA_BASIC, 'CHROMIUM':CHROMIUM, 'FIREFOX':FIREFOX, 'THUNDERBIRD':THUNDERBIRD,
+	                'LIBREOFFICE':LIBREOFFICE, 'VLC':VLC, 'GEANY':GEANY, 'CONKY':CONKY, 'EXTRAS':EXTRAS}
+	                    
+	ALL_PACKAGES_KEYS = ALL_PACKAGES.keys()
 	
-	if LTS == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/lts.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/lts.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if ZEN == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/zen.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/zen.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if MESA == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/mesa.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/mesa.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if NVIDIA == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/nvidia.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/nvidia.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if GNOME_BASIC == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/gnome-basic.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/gnome-basic.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if PLASMA_BASIC == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/plasma-basic.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/plasma-basic.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if CHROMIUM == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/chromium.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/chromium.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if FIREFOX == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/firefox.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/firefox.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if THUNDERBIRD == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/thunderbird.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/thunderbird.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if LIBREOFFICE == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/libreoffice.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/libreoffice.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if VLC == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/vlc.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/vlc.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if GEANY == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/geany.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/geany.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if CONKY == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/conky.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/conky.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
-	if EXTRAS == True:
-		if PACKAGES == '':
-			PACKAGES = read_files('misc/extras.dat')
-		else:				
-			PACKAGES_SWAP = read_files('misc/extras.dat')
-			PACKAGES = PACKAGES + ' ' + PACKAGES_SWAP
+	try:
+		with open(PACKAGES_FILE_PATH) as file:
+			PACKAGES_DAT = file.readlines()
+			for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT):
+				for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS):
+					if ALL_PACKAGES[ALL_PACKAGES_KEYS_LINE]:
+						if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1:
+							PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
+							PACKAGES = PACKAGES + PACKAGES_SWAP.replace('\n','')
+	except Exception:
+		print(PACKAGES_FILE_PATH + ' File not found')
+
+	print(PACKAGES)
+	with term.cbreak(), term.hidden_cursor():
+		key = term.inkey()
 	subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'])
 	subprocess.run(['sh', '-c','arch-chroot /mnt pacman -Sy --noconfirm --needed ' + PACKAGES])
 	pass 
@@ -1278,7 +1209,7 @@ def main():
 							set_pacman()
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Installing packages')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-							chroot_packages()
+							chroot_packages(term)
 							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring hosts and hostname files')
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_hosts_files()
