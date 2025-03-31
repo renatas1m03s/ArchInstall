@@ -1,4 +1,84 @@
 #!/usr/bin/env python3
 
-name=input('Name: ')
-print(name)
+import sys
+import os
+import blessed
+import subprocess
+import socket
+import getpass
+import time
+
+### My Modules
+lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), './modules')) # Define absolut path to custom modules
+
+sys.path.append(lib_path)
+
+# text_justify_center, text_justify_left, text_justify_left_middle, text_print_list, resolve_uw_display, text_set_printable_area
+from texts import *
+
+# choices_horizontal_menu, choices_single_option, choices_multiple_options
+from choices import *
+
+YES_OR_NO = ['Yes','No']
+
+PROCEED_OR_ABORT = ['Proceed','Abort']
+
+PROGRAM_TITLE = 'Arch Linux Post-Install Wizard - v0.11' 
+
+WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
+				' ',
+				'We have two distinct moments on this tool:',
+				'1 - Non destructive - Define setup options: disk, user, regional settings, packages...',
+				'2 - Destructive - Format partions and install system.',
+				' ',]
+
+def permanent_title(term, program_title): # Defines a header with three lines
+
+	position=list((0,0))
+	program_title = text_justify_center(term, position, program_title)
+	position[0]+=1
+	navigation = text_justify_center(term, position, 'Use arrows, ENTER and ESC to navigate and CTRL+C to abort')
+	print(term.clear())
+	sys.stdout.write(term.move(0, 0))
+	sys.stdout.write(term.bold(term.gray_on_blue(program_title)))
+	sys.stdout.write(term.bold(term.blue_on_gray(navigation)))
+	sys.stdout.write(term.csr(3, term.height))
+	sys.stdout.write(term.move(3, 0))
+	
+	pass
+
+def main():
+	STEP = 1
+	PRINTABLE_AREA = 100
+	position = list((0,0))
+
+	term = blessed.Terminal()
+	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
+
+	with term.fullscreen():
+		try:
+			while True:
+				match STEP:
+					case 1: # Print inital statements and disk setup step
+						permanent_title(term, PROGRAM_TITLE) # Set the header with PROGRAM_TITLE text
+						position = resolve_uw_display(term)
+						text_print_list(term, position, WELCOME_TEXT)
+						
+						position = resolve_uw_display(term)
+						step_title = text_justify_center(term, position, 'System Info')
+						print(term.bold(term.gray_on_blue(step_title)))
+#						position = resolve_uw_display(term)
+#						position = sysinfo(term, position)
+#						if disk_setup(term, position):
+#							STEP+=1
+						with term.cbreak(), term.hidden_cursor():
+							key = term.inkey()
+					case _:
+						break
+		except KeyboardInterrupt:
+			print('')
+			exit(0)
+
+	
+if __name__ == "__main__":
+    main()

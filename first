@@ -1112,7 +1112,7 @@ def set_second_autostart():
 	AUTOSTART_PATH = '/mnt/home/' + USERNAME + '/.config/autostart'
 	AUTOSTART_FILE = AUTOSTART_PATH + '/second.desktop'
 	SECOND_DESKTOP = ['[Desktop Entry]\n',
-					  'Exec=gnome-terminal --geometry=90x40 -- /home/' + USERNAME + '/ArchInstall/second && exit\n',
+					  'Exec=gnome-terminal --geometry=100x40 -- /home/' + USERNAME + '/ArchInstall/second && exit\n',
 					  'Icon=application-x-shellscript\n',
 					  'Name=Teste Autostart\n',
 					  'Terminal=false\n',
