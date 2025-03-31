@@ -5,3 +5,5 @@ Arch Setup Wizard - Python
 ```
 curl -s "https://raw.githubusercontent.com/renatas1m03s/ArchInstall/refs/heads/main/prepare.sh" | sh
 
+```
+teste
