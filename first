@@ -645,9 +645,11 @@ def set_msfonts():
 		print(f"Permission denied: Unable to create '{MSFONTS_PATH}'.")
 	except Exception as e:
 		print(f"An error occurred: {e}")
-	subprocess.run(['sh', '-c','7z e ' + MSFONTS_FILE + ' -o' + MSFONTS_PATH + '/'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chmod 644 ' + MSFONTS_PATH + '/*\''])
-	subprocess.run(['sh', '-c','arch-chroot /mnt fc-cache –force'])
+	result1 = subprocess.run(['sh', '-c','7z e ' + MSFONTS_FILE + ' -o' + MSFONTS_PATH + '/'])
+	result2 = subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chmod 644 ' + MSFONTS_PATH + '/*\''])
+	result3 = subprocess.run(['sh', '-c','arch-chroot /mnt fc-cache –force'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result3)+'\n')
 	pass 
 
 def set_telaicons():
@@ -663,7 +665,9 @@ def set_telaicons():
 		print(f"Permission denied: Unable to create '{TELAICONS_PATH}'.")
 	except Exception as e:
 		print(f"An error occurred: {e}")
-	subprocess.run(['sh', '-c','7z x ' + TELAICONS_FILE + ' -o' + TELAICONS_PATH + '/'])
+	result=subprocess.run(['sh', '-c','7z x ' + TELAICONS_FILE + ' -o' + TELAICONS_PATH + '/'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result)+'\n')
 	pass 
 
 def set_alacritty():
@@ -680,7 +684,9 @@ def set_alacritty():
 			print(f"Permission denied: Unable to create '{ALACRITTY_PATH}'.")
 		except Exception as e:
 			print(f"An error occurred: {e}")
-		subprocess.run(['sh', '-c','cp -v ' + ALACRITTY_FILE + ' ' + ALACRITTY_PATH + '/'])
+		result=subprocess.run(['sh', '-c','cp -v ' + ALACRITTY_FILE + ' ' + ALACRITTY_PATH + '/'])
+		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+			logfile.write(str(result)+'\n')
 	pass
 	
 def set_fish_functions():
@@ -696,8 +702,9 @@ def set_fish_functions():
 		print(f"Permission denied: Unable to create '{FISH_FUNCTIONS_PATH}'.")
 	except Exception as e:
 		print(f"An error occurred: {e}")
-	subprocess.run(['sh', '-c','cp -v ' + PATH + FISH_FUNCTIONS_FILES + ' ' + FISH_FUNCTIONS_PATH + '/'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chown -Rv ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
+	result = subprocess.run(['sh', '-c','cp -v ' + PATH + FISH_FUNCTIONS_FILES + ' ' + FISH_FUNCTIONS_PATH + '/'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result)+'\n')
 	pass 
 
 def set_plymouth():
@@ -726,9 +733,11 @@ def set_plymouth():
 	except Exception as e:
 		print(f"An error occurred: {e}")
 
-	subprocess.run(['sh', '-c','cp -Rv ' + PATH + PLYTMOUTH_THEME_FILES + ' ' + PLYTMOUTH_THEME_PATH + '/'])
-	subprocess.run(['sh', '-c','cp -v ' + PATH + PLYTMOUTH_CONF + ' ' + PLYTMOUTH_CONF_PATH + '/'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt mkinitcpio -P'])
+	result1=subprocess.run(['sh', '-c','cp -Rv ' + PATH + PLYTMOUTH_THEME_FILES + ' ' + PLYTMOUTH_THEME_PATH + '/'])
+	result2=subprocess.run(['sh', '-c','cp -v ' + PATH + PLYTMOUTH_CONF + ' ' + PLYTMOUTH_CONF_PATH + '/'])
+	result3=subprocess.run(['sh', '-c','arch-chroot /mnt mkinitcpio -P'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result2)+'\n')
 	pass 
 
 def system_options(term, position, SYSTEM_OPTIONS):
@@ -887,6 +896,15 @@ def packages_definition(term):
 	return SELECTED_PACKAGES
 
 def confirm_options(term, position):
+	
+	x = time.localtime()
+	prefix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
+	
+	global LOG_FILE_NAME, COMPLETE_LOG_FILE_NAME
+	LOG_FILE_NAME = prefix + '_first.log'
+	LOG_FILE_PATH = PATH + 'logs/'
+	COMPLETE_LOG_FILE_NAME = LOG_FILE_PATH + LOG_FILE_NAME 	
+	
 	USER_INFO=[term.bold('User and system definitions:'),
 			   '  ',
 			   'Main user: ' + term.bold(USERNAME),
@@ -908,6 +926,23 @@ def confirm_options(term, position):
 	position = resolve_uw_display(term,1)
 	text_print_list(term, position, SELECTED_PACKAGES)
 
+	try:
+		os.makedirs(LOG_FILE_PATH)
+		print(f"Nested directories '{LOG_FILE_PATH}' created successfully.")
+	except FileExistsError:
+		print(f"One or more directories in '{LOG_FILE_PATH}' already exist.")
+	except PermissionError:
+		print(f"Permission denied: Unable to create '{LOG_FILE_PATH}'.")
+	except Exception as e:
+		print(f"An error occurred: {e}")
+
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		for i,WRITE_LOG_LINE in enumerate(USER_INFO):
+			logfile.write(WRITE_LOG_LINE+'\n')
+		for i,WRITE_LOG_LINE in enumerate(DISK_COMMANDS):
+			logfile.write(WRITE_LOG_LINE+'\n')
+		for i,WRITE_LOG_LINE in enumerate(SELECTED_PACKAGES):
+			logfile.write(WRITE_LOG_LINE+'\n')
 	return True
 
 def prepare_disk(term):
@@ -975,14 +1010,19 @@ def prepare_disk(term):
 
 	for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
 		if command_to_run != '0':
-			subprocess.run(['sh','-c', command_to_run])
+			result = subprocess.run(['sh','-c', command_to_run])
+			with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+				logfile.write(str(result)+'\n')
  
 	x = time.localtime()
 	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
 
 	if os.path.isdir('/mnt/home/'+USERNAME): # Checks the existence of user home folder and rename it
 		print(os.path.isdir('/mnt/home/'+USERNAME), '/mnt/home/'+USERNAME)
-		subprocess.run(['sh','-c','mv -v /mnt/home/' + USERNAME + ' /mnt/home/'+USERNAME+'.'+sufix])
+		result = subprocess.run(['sh','-c','mv -v /mnt/home/' + USERNAME + ' /mnt/home/'+USERNAME+'.'+sufix])
+		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+			logfile.write(str(result)+'\n')
+
 	return True
 
 def read_files(file_name):
@@ -1003,7 +1043,10 @@ def read_files(file_name):
 def run_reflector():
 	REFLECTOR = 'reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 	print('\nPlease wait.\n\nUpdating mirrorlist with reflector...\n(May take a while and is safe to ignore warnings)\n')
-	subprocess.run(['sh','-c', REFLECTOR])
+	result = subprocess.run(['sh','-c', REFLECTOR])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result)+'\n')
+	pass 
 
 def prepare_chroot():
 	file_name = 'misc/pacstrap.dat'
@@ -1012,12 +1055,14 @@ def prepare_chroot():
 	packages = read_files(file_name)
 	if packages != '0':
 		run_reflector() # Update mirrors
-		PACSTRAP[0] = 'pacstrap /mnt '+packages
+		PACSTRAP[0] = 'pacstrap /mnt '+ packages
 		PACSTRAP.append('genfstab -U -p /mnt >> /mnt/etc/fstab')
 		return PACSTRAP
 
 def set_pacman(): # Execute before arch-chroot - Enable multilib, parallel downloads and fancy apearence on pacman 
-	subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'])
+	result = subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result)+'\n')
 	pass
 	
 def chroot_packages(term):
@@ -1039,23 +1084,29 @@ def chroot_packages(term):
 						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
 						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
 
-	subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt pacman -Sy --noconfirm --needed ' + PACKAGES])
+	result1 = subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'])
+	result2 = subprocess.run(['sh', '-c','arch-chroot /mnt pacman -Sy --noconfirm --needed ' + PACKAGES])
+
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n' + str(result2)+'\n')
 	pass 
 
 def set_regional_settings():
-	subprocess.run(['sh', '-c','arch-chroot /mnt ln -sf /usr/share/zoneinfo/' + TIME_ZONE + ' /etc/localtime'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-ntp 1'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-timezone ' + TIME_ZONE])
-	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#pt_BR.UTF-8/pt_BR.UTF-8/g /etc/locale.gen'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#' + LANG + '/' + LANG + '/g /etc/locale.gen'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt locale-gen'])
-	subprocess.run(['sh', '-c','echo LANG=' + LANG + ' >> /mnt/etc/locale.conf'])
-	subprocess.run(['sh', '-c','localectl set-keymap ' + KEYBOARD_CONFIG])
-	subprocess.run(['sh', '-c','cp -v /etc/vconsole.conf /mnt/etc/vconsole.conf'])
-		
+	result1=subprocess.run(['sh', '-c','arch-chroot /mnt ln -sf /usr/share/zoneinfo/' + TIME_ZONE + ' /etc/localtime'])
+	result2=subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-ntp 1'])
+	result3=subprocess.run(['sh', '-c','arch-chroot /mnt timedatectl set-timezone ' + TIME_ZONE])
+	result4=subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#pt_BR.UTF-8/pt_BR.UTF-8/g /etc/locale.gen'])
+	result5=subprocess.run(['sh', '-c','arch-chroot /mnt sed -i s/#' + LANG + '/' + LANG + '/g /etc/locale.gen'])
+	result6=subprocess.run(['sh', '-c','arch-chroot /mnt locale-gen'])
+	result7=subprocess.run(['sh', '-c','echo LANG=' + LANG + ' >> /mnt/etc/locale.conf'])
+	result8=subprocess.run(['sh', '-c','localectl set-keymap ' + KEYBOARD_CONFIG])
+	result9=subprocess.run(['sh', '-c','cp -v /etc/vconsole.conf /mnt/etc/vconsole.conf'])
+	
+	resultA=0	
 	if KEYBOARD_CONFIG == 'us-acentos':
-		subprocess.run(['sh', '-c','echo "GTK_IM_MODULE=cedilla\nQT_IM_MODULE=cedilla" >> /mnt/etc/environment'])
+		resultA=subprocess.run(['sh', '-c','echo "GTK_IM_MODULE=cedilla\nQT_IM_MODULE=cedilla" >> /mnt/etc/environment'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ str(result4)+'\n'+ str(result5)+'\n'+ str(result6)+'\n'+ str(result7)+'\n'+ str(result8)+'\n'+ str(result9)+'\n'+ str(resultA)+'\n')
 	pass 
 
 def set_hosts_files(): # Set hostname and config hosts file
@@ -1079,33 +1130,40 @@ def set_hosts_files(): # Set hostname and config hosts file
 		return False	
      
 def set_pass(): # Create main user and set root password
-	subprocess.run(['sh', '-c','arch-chroot /mnt useradd -m -g users -G wheel -c \'' + DISPLAY_USERNAME + '\' -s /usr/bin/fish -d /home/' + USERNAME + ' '+ USERNAME])
-	subprocess.run(['sh', '-c','mkdir /mnt/home/' + USERNAME + '/ArchInstall'])
-	subprocess.run(['sh', '-c','cp -Rv ' + os.path.dirname(__file__) + '/* /mnt/home/' + USERNAME + '/ArchInstall/'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/setpass.sh \''+PASSWORD0+'\' '+USERNAME])
+	result1=subprocess.run(['sh', '-c','arch-chroot /mnt useradd -m -g users -G wheel -c \'' + DISPLAY_USERNAME + '\' -s /usr/bin/fish -d /home/' + USERNAME + ' '+ USERNAME])
+	result2=subprocess.run(['sh', '-c','mkdir /mnt/home/' + USERNAME + '/ArchInstall'])
+	result3=subprocess.run(['sh', '-c','cp -Rv ' + os.path.dirname(__file__) + '/* /mnt/home/' + USERNAME + '/ArchInstall/'])
+	result4=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/setpass.sh \''+PASSWORD0+'\' '+USERNAME])
 	print('Press any key')
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ str(result4)+'\n')
 	pass
 	
 def set_bootloader():
-	subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/mkgrub.sh'])
+	result=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/mkgrub.sh'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result)+'\n')
+
 	pass
 
 def set_daemons():
 	STRING1 = '#AddressFamily any'
 	STRING2 = 'AddressFamily inet'
-	subprocess.run(['sh', '-c','sed -i \'s/' + STRING1 + '/' + STRING2 + '/g\' /mnt/etc/ssh/sshd_config'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable NetworkManager'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sshd'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable bluetooth'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable cronie'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable ModemManager'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned'])
-	subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned-ppd'])
+	result1=subprocess.run(['sh', '-c','sed -i \'s/' + STRING1 + '/' + STRING2 + '/g\' /mnt/etc/ssh/sshd_config'])
+	result2=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable NetworkManager'])
+	result3=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sshd'])
+	result4=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable bluetooth'])
+	result5=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable cronie'])
+	result6=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable ModemManager'])
+	result7=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned'])
+	result8=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned-ppd'])
 	
 	if GNOME_BASIC == True:
-		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
+		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
 	if PLASMA_BASIC == True:
-		subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
+		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ str(result4)+'\n'+ str(result5)+'\n'+ str(result6)+'\n'+ str(result7)+'\n'+ str(result8)+'\n'+ str(result9)+'\n')
 	pass 
 
 def set_second_autostart():
@@ -1131,6 +1189,23 @@ def set_second_autostart():
 		for i, line in enumerate(SECOND_DESKTOP):
 			FILE.writelines(line)
 	pass 
+ 
+def save_log_file():
+	FINAL_LOG_FILE_PATH = '/mnt/home/' + USERNAME + '/ArchInstall/logs'
+	
+	try:
+		os.makedirs(FINAL_LOG_FILE_PATH)
+		print(f"Nested directories '{FINAL_LOG_FILE_PATH}' created successfully.")
+	except FileExistsError:
+		print(f"One or more directories in '{FINAL_LOG_FILE_PATH}' already exist.")
+	except PermissionError:
+		print(f"Permission denied: Unable to create '{FINAL_LOG_FILE_PATH}'.")
+	except Exception as e:
+		
+	subprocess.run(['sh','-c','cp -v ' + COMPLETE_LOG_FILE_NAME + ' ' + FINAL_LOG_FILE_PATH])
+	
+def set_owner():
+	subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chown -Rv ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
    
 def main():
 	global STEP
@@ -1225,7 +1300,9 @@ def main():
 							set_telaicons()
 							set_plymouth()
 							set_second_autostart()
-							set_fish_functions() # This function set home folder permissions - need to be the last one
+							set_fish_functions()
+							save_log_file()
+							set_owner()  # This function set home folder permissions - need to be the last one
 							print('\nSetup finished...\n\nPress any key...\n\n')
 							with term.cbreak(), term.hidden_cursor():
 								key = term.inkey()
