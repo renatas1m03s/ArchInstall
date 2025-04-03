@@ -1066,9 +1066,9 @@ def set_hosts_files(): # Set hostname and config hosts file
 		subprocess.run(['sh', '-c','echo ' + HOSTNAME + ' > /mnt/etc/hostname'])
 		
 		sample_hosts = open(PATH+SAMPLE_HOSTS)
-		hosts_file = open(HOSTS_FILE, 'a')
+		hosts_file = open(HOSTS_FILE, 'r+')
 		for idx, line in enumerate(sample_hosts.readlines()):
-			if line.find('#HOSTNAME') == 1:
+			if line.find('#HOSTNAME') != -1:
 				hosts_file.write(line.replace('#HOSTNAME',HOSTNAME))
 			else:
 				hosts_file.write(line)

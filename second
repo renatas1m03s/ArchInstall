@@ -25,13 +25,20 @@ PROCEED_OR_ABORT = ['Proceed','Abort']
 
 PROGRAM_TITLE = 'Arch Linux Post-Install Wizard - v0.11' 
 
-WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
+WELCOME_TEXT = ['Welcome to Arch Post-Install Wizard.',
 				' ',
-				'We have two distinct moments on this tool:',
-				'1 - Non destructive - Define setup options: disk, user, regional settings, packages...',
-				'2 - Destructive - Format partions and install system.',
+				'Now we have the oportunity to finish the system setup:',
 				' ',]
-
+				
+PACKAGES_OPTIONS = {'EXT_DASH_TO_DOCK':False ,'EXT_ARCH_UPDATE':False ,'EXT_APP_SYSTEM_TRAY':False,
+                    'APP_CHROME':False ,'APP_EDGE':False ,'APP_ONLYOFFICE':False ,'APP_GIMP':False ,
+                    'APP_KDENLIVE':False ,'APP_AVIDEMUX':False ,'APP_OBS':False ,'APP_QBITTORRENT':False ,
+                    'APP_TERMIUS':False ,'APP_REMMINA':False ,'APP_DARKTABLE':False ,'APP_WINE':False ,
+                    'APP_TELEGRAM':False,'GAME_KPAT':False,'GAME_STEAM':False,'GAME_PROTONUP':False,
+                    'GAME_RETROARCH':False, 'GAME_ES_DE':False, 'GAME_GAMESCOPE':False, 'GAME_MANGOHUD':False}
+                    
+PATH = os.path.dirname(__file__)+'/'
+                    
 def permanent_title(term, program_title): # Defines a header with three lines
 
 	position=list((0,0))
@@ -47,11 +54,176 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	
 	pass
 
+def set_darktheme():
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface color-scheme prefer-dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
+	
+def set_wallpaper():
+	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/Arch-plus-BlackCat-QHD.png'
+	DESTINATION_PATH = '~/Pictures/'
+	subprocess.run(['sh', '-c','cp ' + WALLPAPER_FILE_PATH + ' ' + DESTINATION_PATH])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-options \'spanned\''])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri-dark file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
+		
+def install_yay(term, position):
+	global YAY
+	YAY = False
+	FINISH = False
+		
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Install AUR Helper (yay)?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm'])
+			FINISH = True
+			YAY = True
+			return True
+		else:
+			FINISH = True
+			return False
+
+def appearance_options(term, position):
+	global PACKAGES_OPTIONS
+	
+	FINISH = False
+	OPTIONS = ['Dash to Dock',
+	           'Arch Linux Updates Indicator.',
+	           'App System Tray - like KDE']
+
+	PRESERV_POSITION = position
+	
+	while FINISH == False:
+		position = PRESERV_POSITION
+		selected_items=choices_multiple_options(term, position, OPTIONS, 'Install gnome extensions?')
+		if selected_items != '0':
+			if 'Dash to Dock' in selected_items:
+				PACKAGES_OPTIONS['EXT_DASH_TO_DOCK'] = True
+#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-dash-to-dock'])
+			if 'Arch Linux Updates Indicator.' in selected_items:
+				PACKAGES_OPTIONS['EXT_ARCH_UPDATE'] = True
+#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-arch-update'])
+			if 'App System Tray - like KDE' in selected_items:
+				PACKAGES_OPTIONS['EXT_APP_SYSTEM_TRAY'] = True
+#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-appindicator-git'])
+		FINISH = True
+	return True
+	
+def apps_misc(term, position):
+	global PACKAGES_OPTIONS
+	
+	FINISH = False
+	OPTIONS = ['Browser - Google Chrome.',
+			   'Browser - Microsoft Edge.', 
+	           'Office Suite - Onlyoffice.',
+	           'Image Editor - Gimp (GNU Image Manipulation Program).',
+	           'Video Editor - KDEnlive.',
+	           'Video Editor - Avidemux.',
+	           'Broadcaster Software - OBS Studio.',
+	           'Torrent Client - QBittorrent.',
+	           'Terminal Client - Termius.',
+	           'Remote Desktop Client - Remmina.',
+	           'RAW Image Editor - Darktable.',
+	           'Windows Compatibility Layer - Wine.',
+	           'Instant Messaging - Telegram Desktop.']
+	
+	PRESERV_POSITION = position
+	
+	while FINISH == False:
+		position = PRESERV_POSITION
+		selected_items=choices_multiple_options(term, position, OPTIONS, 'Apps selection')
+		if selected_items != '0':
+			if 'Browser - Google Chrome.' in selected_items:
+				PACKAGES_OPTIONS['APP_CHROME'] = True
+			if 'Browser - Microsoft Edge.' in selected_items:
+				PACKAGES_OPTIONS['APP_EDGE'] = True
+			if 'Office Suite - Onlyoffice.' in selected_items:
+				PACKAGES_OPTIONS['APP_ONLYOFFICE'] = True
+			if 'Image Editor - Gimp (GNU Image Manipulation Program).' in selected_items:
+				PACKAGES_OPTIONS['APP_GIMP'] = True
+			if 'Video Editor - KDEnlive.' in selected_items:
+				PACKAGES_OPTIONS['APP_KDENLIVE'] = True
+			if 'Video Editor - Avidemux.' in selected_items:
+				PACKAGES_OPTIONS['APP_AVIDEMUX'] = True
+			if 'Broadcaster Software - OBS Studio.' in selected_items:
+				PACKAGES_OPTIONS['APP_OBS'] = True
+			if 'Torrent Client - QBittorrent.' in selected_items:
+				PACKAGES_OPTIONS['APP_QBITTORRENT'] = True
+			if 'Terminal Client - Termius.' in selected_items:
+				PACKAGES_OPTIONS['APP_TERMIUS'] = True
+			if 'Remote Desktop Client - Remmina.' in selected_items:
+				PACKAGES_OPTIONS['APP_REMMINA'] = True
+			if 'RAW Image Editor - Darktable.' in selected_items:
+				PACKAGES_OPTIONS['APP_DARKTABLE'] = True
+			if 'Windows Compatibility Layer - Wine.' in selected_items:
+				PACKAGES_OPTIONS['APP_WINE'] = True
+			if 'Instant Messaging - Telegram Desktop.' in selected_items:
+				PACKAGES_OPTIONS['APP_TELEGRAM'] = True
+		FINISH = True
+	return True
+
+def apps_gaming():
+	global PACKAGES_OPTIONS
+	
+	FINISH = False
+	OPTIONS = ['KDE Patience.',
+			   'Steam (Native).', 
+	           'ProtonUP-Qt',
+	           'Retroarch',
+	           'ES-DE (Emulationstation Desktop Edition).',
+	           'Gamescope',
+	           'MangoHUD']
+	
+	PRESERV_POSITION = position
+
+	while FINISH == False:
+		position = PRESERV_POSITION
+		selected_items=choices_multiple_options(term, position, OPTIONS, 'Apps selection')
+		if selected_items != '0':
+			if 'KDE Patience.' in selected_items:
+				PACKAGES_OPTIONS['GAME_KPAT'] = True
+			if 'Steam (Native).' in selected_items:
+				PACKAGES_OPTIONS['GAME_STEAM'] = True
+			if 'ProtonUP-Qt' in selected_items:
+				PACKAGES_OPTIONS['GAME_PROTONUP'] = True
+			if 'Retroarch' in selected_items:
+				PACKAGES_OPTIONS['GAME_RETROARCH'] = True
+			if 'ES-DE (Emulationstation Desktop Edition).' in selected_items:
+				PACKAGES_OPTIONS['GAME_ES_DE'] = True
+			if 'Gamescope' in selected_items:
+				PACKAGES_OPTIONS['GAME_GAMESCOPE'] = True
+			if 'MangoHUD' in selected_items:
+				PACKAGES_OPTIONS['GAME_MANGOHUD'] = True
+		FINISH = True
+	return True
+	
+def install_packages():
+
+	PACKAGES_FILE_PATH = PATH + 'misc/second-packages.dat'
+	PACKAGES = ''
+	ALL_PACKAGES_KEYS = PACKAGES_OPTIONS.keys()
+
+	with open(PACKAGES_FILE_PATH) as file: # Open the file with packages names
+		PACKAGES_DAT = file.readlines() # Set packages_dat list variable where every line is a position
+		for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT): # Pass every single line present in the file
+			for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS): # Test every key in dictionary variable
+				if PACKAGES_OPTIONS[ALL_PACKAGES_KEYS_LINE]: # if Value == True, then
+					if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1: # IF file line has a KEY
+						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
+						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
+
+	subprocess.run(['sh', '-c','yay -Sy --noconfirm --needed' + PACKAGES])
+	pass 
+
 def main():
 	STEP = 1
 	PRINTABLE_AREA = 100
 	position = list((0,0))
 
+	set_wallpaper()
+	set_darktheme()
 	term = blessed.Terminal()
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
 
@@ -63,16 +235,36 @@ def main():
 						permanent_title(term, PROGRAM_TITLE) # Set the header with PROGRAM_TITLE text
 						position = resolve_uw_display(term)
 						text_print_list(term, position, WELCOME_TEXT)
-						
 						position = resolve_uw_display(term)
-						step_title = text_justify_center(term, position, 'System Info')
+						preserv_position = position
+						step_title = text_justify_center(term, position, 'AUR Helper')
 						print(term.bold(term.gray_on_blue(step_title)))
-#						position = resolve_uw_display(term)
-#						position = sysinfo(term, position)
-#						if disk_setup(term, position):
-#							STEP+=1
-						with term.cbreak(), term.hidden_cursor():
-							key = term.inkey()
+						position = resolve_uw_display(term,1)
+						install_yay(term, position)
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Gnome Extensions')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						appearance_options(term, position)
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Apps (Misc).')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						apps_misc(term, position)
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Gaming.')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						apps_gaming(term, position)						
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Installing apps')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						install_packages()
+						
+						STEP += 1
+#						with term.cbreak(), term.hidden_cursor():
+#							key = term.inkey()
 					case _:
 						break
 		except KeyboardInterrupt:
