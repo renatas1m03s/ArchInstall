@@ -928,7 +928,6 @@ def confirm_options(term, position):
 
 	try:
 		os.makedirs(LOG_FILE_PATH)
-		print(f"Nested directories '{LOG_FILE_PATH}' created successfully.")
 	except FileExistsError:
 		print(f"One or more directories in '{LOG_FILE_PATH}' already exist.")
 	except PermissionError:
@@ -1133,9 +1132,10 @@ def set_pass(): # Create main user and set root password
 	result2=subprocess.run(['sh', '-c','mkdir /mnt/home/' + USERNAME + '/ArchInstall'])
 	result3=subprocess.run(['sh', '-c','cp -Rv ' + os.path.dirname(__file__) + '/* /mnt/home/' + USERNAME + '/ArchInstall/'])
 	result4=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/setpass.sh \''+PASSWORD0+'\' '+USERNAME])
+	result4_without_password = str(result4).replace(PASSWORD0,'')
 	print('Press any key')
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ str(result4)+'\n')
+		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ result4_without_password+'\n')
 	pass
 	
 def set_bootloader():
