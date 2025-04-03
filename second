@@ -200,6 +200,27 @@ def apps_gaming(term, position):
 				PACKAGES_OPTIONS['GAME_MANGOHUD'] = True
 		FINISH = True
 	return True
+
+def virtualization(term, position):
+	FINISH = False
+		
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Install QEMU and Virt-Manager?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','sudo pacman -Rdd --noconfirm iptables'])
+			subprocess.run(['sh', '-c','sudo pacman -Sy --needed --noconfirm qemu-full virt-manager dnsmasq iptables-nft edk2-ovmf swtpm'])
+			subprocess.run(['sh', '-c','sudo sudo systemctl enable libvirtd'])
+			subprocess.run(['sh', '-c','sudo virsh net-autostart default'])
+			subprocess.run(['sh', '-c','sudo usermod $USER -aG libvirt'])
+			FINISH = True
+			YAY = True
+			return True
+		else:
+			FINISH = True
+			return False	
 	
 def install_packages():
 
@@ -219,6 +240,23 @@ def install_packages():
 	subprocess.run(['sh', '-c','yay -Sy --noconfirm --needed' + PACKAGES])
 	pass 
 
+def finish_app(term,position):
+	FINISH = False
+			
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Remove "Welcome Wizard" from autostart and reboot?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','rm $HOME/.config/autostart/second.desktop'])		
+			subprocess.run(['sh', '-c','gnome-session-quit --reboot'])
+			FINISH = True
+			return True
+		else:
+			FINISH = True
+			return False
+
 def main():
 	STEP = 1
 	PRINTABLE_AREA = 100
@@ -235,9 +273,9 @@ def main():
 					case 1: # Print inital statements and disk setup step
 						permanent_title(term, PROGRAM_TITLE) # Set the header with PROGRAM_TITLE text
 						position = resolve_uw_display(term)
+						preserv_position = position
 						text_print_list(term, position, WELCOME_TEXT)
 						position = resolve_uw_display(term)
-						preserv_position = position
 						step_title = text_justify_center(term, position, 'AUR Helper')
 						print(term.bold(term.gray_on_blue(step_title)))
 						position = resolve_uw_display(term,1)
@@ -262,10 +300,19 @@ def main():
 						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 						position = resolve_uw_display(term,1)
 						install_packages()
-						
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Virtualization')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						virtualization(term, position)
 						STEP += 1
-#						with term.cbreak(), term.hidden_cursor():
-#							key = term.inkey()
+					case 2:
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Setup Complete')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						finish_app(term,position)
+						STEP += 1
 					case _:
 						break
 		except KeyboardInterrupt:
