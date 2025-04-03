@@ -54,18 +54,20 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	
 	pass
 
-def set_darktheme():
-	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface color-scheme prefer-dark'])
-	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
 	
-def set_wallpaper():
+def set_gnome():
 	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/Arch-plus-BlackCat-QHD.png'
 	DESTINATION_PATH = '~/Pictures/'
 	subprocess.run(['sh', '-c','cp ' + WALLPAPER_FILE_PATH + ' ' + DESTINATION_PATH])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-options \'spanned\''])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri-dark file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
-		
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences button-layout \'appmenu:minimize,maximize,close\''])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface color-scheme prefer-dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface icon-theme Tela-ubuntu-dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface accent-color orange'])
+
 def install_yay(term, position):
 	global YAY
 	YAY = False
@@ -164,7 +166,7 @@ def apps_misc(term, position):
 		FINISH = True
 	return True
 
-def apps_gaming():
+def apps_gaming(term, position):
 	global PACKAGES_OPTIONS
 	
 	FINISH = False
@@ -222,8 +224,7 @@ def main():
 	PRINTABLE_AREA = 100
 	position = list((0,0))
 
-	set_wallpaper()
-	set_darktheme()
+	set_gnome()
 	term = blessed.Terminal()
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
 
