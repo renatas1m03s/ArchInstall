@@ -19,5 +19,5 @@ GAME_STEAM= steam-native-runtime
 GAME_PROTONUP= protonup-qt
 GAME_RETROARCH= retroarch-git
 GAME_ES_DE= emulationstation-de
-GAME_GAMESCOPE= gamescope-plus
+GAME_GAMESCOPE= gamescope
 GAME_MANGOHUD= mangohud 
