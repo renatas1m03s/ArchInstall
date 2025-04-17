@@ -284,7 +284,8 @@ def choose_disk(term, position):
 
 def set_sagittarius_fstab():
 
-	MNTDATA_BOOLEAN = False
+	MNTDATA1_BOOLEAN = False
+	MNTDATA2_BOOLEAN = False
 	MNTSTEAM1_BOOLEAN = False
 	MNTSTEAM2_BOOLEAN = False
 	MNTRETRO_BOOLEAN = False
@@ -300,8 +301,10 @@ def set_sagittarius_fstab():
 		with open(PATH+FSTAB_EXTRA) as file:
 			for line in file:
 				line_row = line.split(',')
-				if line_row[0] == 'Data':
-					MNTDATA_ID = line_row[1].replace('\n','')
+				if line_row[0] == 'Data1':
+					MNTDATA1_ID = line_row[1].replace('\n','')
+				if line_row[0] == 'Data2':
+					MNTDATA2_ID = line_row[1].replace('\n','')
 				if line_row[0] == 'Steam1':
 					MNTSTEAM1_ID = line_row[1].replace('\n','')
 				if line_row[0] == 'Steam2':
@@ -314,15 +317,24 @@ def set_sagittarius_fstab():
 					MNTMULTIMEDIA_ID = line_row[1].replace('\n','')
 		for idx1, lines1 in enumerate(lsbblk_lines):
 			print(lines1)
-			if lines1.find(MNTDATA_ID)!=-1:        # /mnt/Data
+			if lines1.find(MNTDATA1_ID)!=-1:        # /mnt/Data1
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
 					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
 						if lines2.find(MNTDATA_ID)!=-1:
-							MNTDATA_BOOLEAN = True
+							MNTDATA1_BOOLEAN = True
 				if MNTDATA_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Data\nUUID=' + MNTDATA_ID + '       /mnt/Data        ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# Data1\nUUID=' + MNTDATA_ID + '       /mnt/Data1        ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+			if lines1.find(MNTDATA2_ID)!=-1:        # /mnt/Data2
+				with open(FSTABFILE) as FSTAB:
+					FSTAB_file = FSTAB.read()
+					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
+						if lines2.find(MNTDATA2_ID)!=-1:
+							MNTDATA2_BOOLEAN = True
+				if MNTDATA_BOOLEAN == False:
+					with open(FSTABFILE,'a') as FSTAB:
+						FSTAB.write('\n# Data2\nUUID=' + MNTDATA_ID + '       /mnt/Data2        ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
 			if lines1.find(MNTSTEAM1_ID)!=-1:      # /mnt/SteamGames1
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
