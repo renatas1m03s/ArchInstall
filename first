@@ -52,55 +52,16 @@ def set_var_lang(var):
 def set_language(lang):
 	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE, WELCOME_TEXT, DISK_OPTIONS, DISK_OPTIONS3, DISK_OPTIONS4, SYSTEM_OPTIONS, DISK_SETUP_WELCOME
 
-	EN_FILE = 'misc/en_US.dat'
-	BR_FILE = 'misc/pt_BR.dat'
-
-	match lang:
-		case 'en':
-			with open(PATH+EN_FILE) as file:
-				for line in file:
-					line_row=line.split('=')
-					if line_row[0] == 'YES_OR_NO':
-						YES_OR_NO = line_row[1].split(';')
-					if line_row[0] == 'PROCEED_OR_ABORT':
-						PROCEED_OR_ABORT = line_row[1].split(';')
-					if line_row[0] == 'PROGRAM_TITLE':
-						PROGRAM_TITLE = line_row[1].split(';')
-					if line_row[0] == 'WELCOME_TEXT':
-						WELCOME_TEXT = line_row[1].split(';')
-					if line_row[0] == 'DISK_OPTIONS':
-						DISK_OPTIONS = line_row[1].split(';')
-					if line_row[0] == ' DISK_OPTIONS3':
-						 DISK_OPTIONS3 = line_row[1].split(';')
-					if line_row[0] == 'DISK_OPTIONS4':
-						DISK_OPTIONS4 = line_row[1].split(';')
-					if line_row[0] == 'SYSTEM_OPTIONS':
-						SYSTEM_OPTIONS = line_row[1].split(';')
-					if line_row[0] == 'DISK_SETUP_WELCOME':
-						DISK_SETUP_WELCOME = line_row[1].split(';')
-		case 'br':
-			with open(PATH+BR_FILE) as file:
-				for line in file:
-					line_row=line.split('=')
-					if line_row[0] == 'YES_OR_NO':
-						YES_OR_NO = line_row[1].split(';')
-					if line_row[0] == 'PROCEED_OR_ABORT':
-						PROCEED_OR_ABORT = line_row[1].split(';')
-					if line_row[0] == 'PROGRAM_TITLE':
-						PROGRAM_TITLE = line_row[1].split(';')
-					if line_row[0] == 'WELCOME_TEXT':
-						WELCOME_TEXT = line_row[1].split(';')
-					if line_row[0] == 'DISK_OPTIONS':
-						DISK_OPTIONS = line_row[1].split(';')
-					if line_row[0] == ' DISK_OPTIONS3':
-						 DISK_OPTIONS3 = line_row[1].split(';')
-					if line_row[0] == 'DISK_OPTIONS4':
-						DISK_OPTIONS4 = line_row[1].split(';')
-					if line_row[0] == 'SYSTEM_OPTIONS':
-						SYSTEM_OPTIONS = line_row[1].split(';')
-					if line_row[0] == 'DISK_SETUP_WELCOME':
-						DISK_SETUP_WELCOME = line_row[1].split(';')
-
+	YES_OR_NO = set_var_lang('YES_OR_NO')
+	PROCEED_OR_ABORT = set_var_lang('PROCEED_OR_ABORT')
+	PROGRAM_TITLE = set_var_lang('PROGRAM_TITLE')
+	WELCOME_TEXT = set_var_lang('WELCOME_TEXT')
+	DISK_OPTIONS = set_var_lang('DISK_OPTIONS')
+	DISK_OPTIONS3 = set_var_lang('DISK_OPTIONS3')
+	DISK_OPTIONS4 = set_var_lang('DISK_OPTIONS4')
+	SYSTEM_OPTIONS = set_var_lang('SYSTEM_OPTIONS')
+	DISK_SETUP_WELCOME = set_var_lang('DISK_SETUP_WELCOME')
+	
 	pass
 
 def initial_args(argv):
