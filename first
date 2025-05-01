@@ -30,22 +30,22 @@ def set_var_lang(var):
 			with open(PATH+EN_FILE) as file:
 				for line in file:
 					line_row=line.split('=')
-						if line_row[0] == var:
-							TEXT = line_row[1].split(';')
-							if len(TEXT) == 1:
-								TEXT = str(TEXT[0].replace('\n',''))
-							else:
-								TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
 		case 'br':
-			with open(PATH+BR_FILE) as file:
+			with open(PATH+EN_FILE) as file:
 				for line in file:
 					line_row=line.split('=')
-						if line_row[0] == var:
-							TEXT = line_row[1].split(';')
-							if len(TEXT) == 1:
-								TEXT = str(TEXT[0].replace('\n',''))
-							else:
-								TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
 
 	return TEXT
 
