@@ -19,60 +19,92 @@ from texts import *
 # choices_horizontal_menu, choices_single_option, choices_multiple_options
 from choices import * 
 
-###############################################################################
-
-### "CONSTANTS and Global Variables"
-
-YES_OR_NO = ['Yes','No']
-
-PROCEED_OR_ABORT = ['Proceed','Abort']
-
-PROGRAM_TITLE = 'Arch Linux Install Wizard - v0.11' 
-
-WELCOME_TEXT = ['Welcome to Arch Install Wizard.',
-				' ',
-				'We have two distinct moments on this tool:',
-				'1 - Non destructive - Define setup options: disk, user, regional settings, packages...',
-				'2 - Destructive - Format partions and install system.',
-				' ',]
-
-DISK_OPTIONS = ['EFI,Boot,Root and Home topology. Format EFI, Boot and Root (preserv Home).',
-				'EFI,Boot,Root and Home topology. Format Boot and Root (preserv EFI and Home).',
-				'EFI,Boot,Root and Home topology.Format EFI, Boot, Root and Home.',
-				'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
-
-DISK_OPTIONS3 = ['Format/Mount partition 1 as EFI (FAT32)?',
-				 'Format/Mount partition 2 as Root (EXT4)?',
-				 'Format/Mount partition 3 as Home (EXT4)?',
-				 'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
-
-DISK_OPTIONS4 = ['Format/Mount partition 1 as EFI (FAT32)?',
-				 'Format/Mount partition 2 as Boot (EXT4)?',
-				 'Format/Mount partition 3 as Root (EXT4)?',
-				 'Format/Mount partition 4 as Home (EXT4)?',
-				 'Erase disk and create/format EFI (650MiB) and Root partition using entire disk.']
-
-SYSTEM_OPTIONS = ['LTS Kernel',
-                  'ZEN Kernel',
-                  'Mesa combo - For systems with GPUs/iGPUS AMD or Intel',
-                  'NVidia combo - For systems with GPUs NVidia',
-                  'GNOME Basic - Minimal options - file manager, terminal, tweaks...',
-                  'Plasma/KDE Basic -  Minimal options - file manager, terminal...',
-                  'Internet Browser - Chromium',
-                  'Internet Browser - Firefox browser',
-                  'Email Client - Thunderbird',                
-                  'Office Suite - Libreoffice',
-                  'Video Player - VLC',
-                  'Text Editor - Geany and plugins',
-                  'System Monitor - Conky',
-                  'Usefull extras - p7zip, btop and yt-dlp']
-
 PATH = os.path.dirname(__file__)+'/'
 
-DISK_SETUP_WELCOME = 'Moment 1 - Non destructive - Define disk options'
+def set_var_lang(var):
+	EN_FILE = 'misc/en_US.dat'
+	BR_FILE = 'misc/pt_BR.dat'
+
+	match INT_LANG:
+		case 'en':
+			with open(PATH+EN_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+						if line_row[0] == var:
+							TEXT = line_row[1].split(';')
+							if len(TEXT) == 1:
+								TEXT = str(TEXT[0].replace('\n',''))
+							else:
+								TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+		case 'br':
+			with open(PATH+BR_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+						if line_row[0] == var:
+							TEXT = line_row[1].split(';')
+							if len(TEXT) == 1:
+								TEXT = str(TEXT[0].replace('\n',''))
+							else:
+								TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+
+	return TEXT
+
+def set_language(lang):
+	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE, WELCOME_TEXT, DISK_OPTIONS, DISK_OPTIONS3, DISK_OPTIONS4, SYSTEM_OPTIONS, DISK_SETUP_WELCOME
+
+	EN_FILE = 'misc/en_US.dat'
+	BR_FILE = 'misc/pt_BR.dat'
+
+	match lang:
+		case 'en':
+			with open(PATH+EN_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+						if line_row[0] == 'YES_OR_NO':
+							YES_OR_NO = line_row[1].split(';')
+						if line_row[0] == 'PROCEED_OR_ABORT':
+							PROCEED_OR_ABORT = line_row[1].split(';')
+						if line_row[0] == 'PROGRAM_TITLE':
+							PROGRAM_TITLE = line_row[1].split(';')
+						if line_row[0] == 'WELCOME_TEXT':
+							WELCOME_TEXT = line_row[1].split(';')
+						if line_row[0] == 'DISK_OPTIONS':
+							DISK_OPTIONS = line_row[1].split(';')
+						if line_row[0] == ' DISK_OPTIONS3':
+							 DISK_OPTIONS3 = line_row[1].split(';')
+						if line_row[0] == 'DISK_OPTIONS4':
+							DISK_OPTIONS4 = line_row[1].split(';')
+						if line_row[0] == 'SYSTEM_OPTIONS':
+							SYSTEM_OPTIONS = line_row[1].split(';')
+						if line_row[0] == 'DISK_SETUP_WELCOME':
+							DISK_SETUP_WELCOME = line_row[1].split(';')
+		case 'br':
+			with open(PATH+BR_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+						if line_row[0] == 'YES_OR_NO':
+							YES_OR_NO = line_row[1].split(';')
+						if line_row[0] == 'PROCEED_OR_ABORT':
+							PROCEED_OR_ABORT = line_row[1].split(';')
+						if line_row[0] == 'PROGRAM_TITLE':
+							PROGRAM_TITLE = line_row[1].split(';')
+						if line_row[0] == 'WELCOME_TEXT':
+							WELCOME_TEXT = line_row[1].split(';')
+						if line_row[0] == 'DISK_OPTIONS':
+							DISK_OPTIONS = line_row[1].split(';')
+						if line_row[0] == ' DISK_OPTIONS3':
+							 DISK_OPTIONS3 = line_row[1].split(';')
+						if line_row[0] == 'DISK_OPTIONS4':
+							DISK_OPTIONS4 = line_row[1].split(';')
+						if line_row[0] == 'SYSTEM_OPTIONS':
+							SYSTEM_OPTIONS = line_row[1].split(';')
+						if line_row[0] == 'DISK_SETUP_WELCOME':
+							DISK_SETUP_WELCOME = line_row[1].split(';')
+
+	pass
 
 def initial_args(argv):
-	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP
+	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP, INT_LANG
 
 	PASSWORD0 = '0'
 
@@ -82,7 +114,7 @@ def initial_args(argv):
 		for i, parameter in enumerate(sys.argv):
 			match parameter.lower():
 				case '-h':
-					print('Usage mode: first -s hostname -c "display user name" -u username -p password')
+					print(set_var_lang('HELP_ARG'))
 					SYSTEM = 'generic'
 					USERNAME = 'archlinux'
 					DISPLAY_USERNAME = 'Arch Linux'
@@ -103,7 +135,10 @@ def initial_args(argv):
 				case '-p':
 					if i+1 < len(sys.argv):
 						PASSWORD0 = sys.argv[i+1]
-						
+				case '-i':
+					if i+1 < len(sys.argv):
+						INT_LANG = sys.argv[i+1]
+
 		SYSTEM = HOSTNAME
 		
 		if SYSTEM in KNOW_SYSTEMS:
@@ -153,6 +188,7 @@ def initial_args(argv):
 		TIME_ZONE = 'Etc/GMT0'
 		KEYBOARD_CONFIG = 'us-acentos'
 		
+	
 def permanent_title(term, program_title): # Defines a header with three lines
 
 	position=list((0,0))

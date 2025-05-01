@@ -1,0 +1,10 @@
+YES_OR_NO=Yes;No
+PROCEED_OR_ABORT=Proceed;Abort
+PROGRAM_TITLE=Arch Linux Install Wizard - v0.11 
+WELCOME_TEXT=Welcome to Arch Install Wizard.; ;We have two distinct moments on this tool:;1 - Non destructive - Define setup options: disk, user, regional settings, packages...;2 - Destructive - Format partions and install system.
+DISK_OPTIONS=EFI,Boot,Root and Home topology. Format EFI, Boot and Root (preserv Home).;EFI,Boot,Root and Home topology. Format Boot and Root (preserv EFI and Home).;EFI,Boot,Root and Home topology.Format EFI, Boot, Root and Home.;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
+DISK_OPTIONS3=Format/Mount partition 1 as EFI (FAT32)?;Format/Mount partition 2 as Root (EXT4)?;Format/Mount partition 3 as Home (EXT4)?;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
+DISK_OPTIONS4=Format/Mount partition 1 as EFI (FAT32)?;Format/Mount partition 2 as Boot (EXT4)?;Format/Mount partition 3 as Root (EXT4)?;Format/Mount partition 4 as Home (EXT4)?;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
+SYSTEM_OPTIONS=LTS Kernel;ZEN Kernel;Mesa combo - For systems with GPUs/iGPUS AMD or Intel;NVidia combo - For systems with GPUs NVidia;GNOME Basic - Minimal options - file manager, terminal, tweaks...;Plasma/KDE Basic -  Minimal options - file manager, terminal...;Internet Browser - Chromium;Internet Browser - Firefox browser;Email Client - Thunderbird;Office Suite - Libreoffice;Video Player - VLC;Text Editor - Geany and plugins;System Monitor - Conky;Usefull extras - p7zip, btop and yt-dlp
+DISK_SETUP_WELCOME=Moment 1 - Non destructive - Define disk options
+HELP_ARG=Usage mode: first -s hostname -c "display user name" -u username -p password -i [en/br]
