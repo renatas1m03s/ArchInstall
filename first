@@ -105,6 +105,7 @@ def set_language(lang):
 
 def initial_args(argv):
 	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP, INT_LANG
+	INT_LANG = 'en'
 
 	PASSWORD0 = '0'
 
@@ -137,7 +138,8 @@ def initial_args(argv):
 						PASSWORD0 = sys.argv[i+1]
 				case '-i':
 					if i+1 < len(sys.argv):
-						INT_LANG = sys.argv[i+1]
+						if sys.argv[i+1] == 'en' or sys.argv[i+1]=='br':
+							INT_LANG = sys.argv[i+1]
 
 		SYSTEM = HOSTNAME
 		
@@ -187,6 +189,8 @@ def initial_args(argv):
 		LANG = 'en_US.UTF-8'
 		TIME_ZONE = 'Etc/GMT0'
 		KEYBOARD_CONFIG = 'us-acentos'
+		
+	set_language(INT_LANG)
 		
 	
 def permanent_title(term, program_title): # Defines a header with three lines
