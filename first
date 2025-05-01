@@ -37,7 +37,7 @@ def set_var_lang(var):
 						else:
 							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
 		case 'br':
-			with open(PATH+EN_FILE) as file:
+			with open(PATH+BR_FILE) as file:
 				for line in file:
 					line_row=line.split('=')
 					if line_row[0] == var:
@@ -67,6 +67,7 @@ def set_language(lang):
 def initial_args(argv):
 	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP, INT_LANG
 	INT_LANG = 'en'
+	HOSTNAME = 'arch'
 
 	PASSWORD0 = '0'
 
