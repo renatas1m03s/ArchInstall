@@ -1,10 +1,11 @@
 YES_OR_NO=Sim;Não
 PROCEED_OR_ABORT=Continuar;Abortar
 PROGRAM_TITLE=Assistente de Instalação do Arch Linux - v0.11 
-WELCOME_TEXT=Bem vindo ao Assistente de Instalação do Arch Linux.; ;Temos dois momentos distintos nessa ferramenta:;1 - Não destrutivo - Definição das opções de instalação: disco, usuário, localidade, pacotes...;2 - Destrutivo - Formata as partições e instala o sistema.
+WELCOME_TEXT=Bem vindo ao Assistente de Instalação do Arch Linux.; ;Temos dois momentos distintos nessa ferramenta:;1 - Não destrutivo - Definição das opções de instalação: disco, usuário, localidade, pacotes...;2 - Destrutivo - Formata as partições e instala o sistema.; 
 DISK_OPTIONS=EFI,Boot,Root and Home topology. Format EFI, Boot and Root (preserv Home).;EFI,Boot,Root and Home topology. Format Boot and Root (preserv EFI and Home).;EFI,Boot,Root and Home topology.Format EFI, Boot, Root and Home.;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
 DISK_OPTIONS3=Format/Mount partition 1 as EFI (FAT32)?;Format/Mount partition 2 as Root (EXT4)?;Format/Mount partition 3 as Home (EXT4)?;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
 DISK_OPTIONS4=Format/Mount partition 1 as EFI (FAT32)?;Format/Mount partition 2 as Boot (EXT4)?;Format/Mount partition 3 as Root (EXT4)?;Format/Mount partition 4 as Home (EXT4)?;Erase disk and create/format EFI (650MiB) and Root partition using entire disk.
 SYSTEM_OPTIONS=LTS Kernel;ZEN Kernel;Mesa combo - For systems with GPUs/iGPUS AMD or Intel;NVidia combo - For systems with GPUs NVidia;GNOME Basic - Minimal options - file manager, terminal, tweaks...;Plasma/KDE Basic -  Minimal options - file manager, terminal...;Internet Browser - Chromium;Internet Browser - Firefox browser;Email Client - Thunderbird;Office Suite - Libreoffice;Video Player - VLC;Text Editor - Geany and plugins;System Monitor - Conky;Usefull extras - p7zip, btop and yt-dlp
 DISK_SETUP_WELCOME=Moment 1 - Non destructive - Define disk options
 HELP_ARG=Modo de usar: first -s hostname -c "Descrição do usuário" -u nome_do_usuário -p senha -i [en/br]
+NAVIGATION1=Use as setas, ENTER e ESC para navegar, CTRL+C para abortar

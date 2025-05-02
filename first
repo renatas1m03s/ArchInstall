@@ -160,7 +160,7 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	position=list((0,0))
 	program_title = text_justify_center(term, position, program_title)
 	position[0]+=1
-	navigation = text_justify_center(term, position, 'Use arrows, ENTER and ESC to navigate and CTRL+C to abort')
+	navigation = text_justify_center(term, position, set_var_lang('NAVIGATION1'))
 	print(term.clear())
 	sys.stdout.write(term.move(0, 0))
 	sys.stdout.write(term.bold(term.gray_on_blue(program_title)))
