@@ -50,13 +50,12 @@ def set_var_lang(var):
 	return TEXT
 
 def set_language(lang):
-	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE, WELCOME_TEXT, DISK_OPTIONS, DISK_OPTIONS3, DISK_OPTIONS4, SYSTEM_OPTIONS, DISK_SETUP_WELCOME
+	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE, WELCOME_TEXT, DISK_OPTIONS3, DISK_OPTIONS4, SYSTEM_OPTIONS, DISK_SETUP_WELCOME
 
 	YES_OR_NO = set_var_lang('YES_OR_NO')
 	PROCEED_OR_ABORT = set_var_lang('PROCEED_OR_ABORT')
 	PROGRAM_TITLE = set_var_lang('PROGRAM_TITLE')
 	WELCOME_TEXT = set_var_lang('WELCOME_TEXT')
-	DISK_OPTIONS = set_var_lang('DISK_OPTIONS')
 	DISK_OPTIONS3 = set_var_lang('DISK_OPTIONS3')
 	DISK_OPTIONS4 = set_var_lang('DISK_OPTIONS4')
 	SYSTEM_OPTIONS = set_var_lang('SYSTEM_OPTIONS')
@@ -153,7 +152,6 @@ def initial_args(argv):
 		KEYBOARD_CONFIG = 'us-acentos'
 		
 	set_language(INT_LANG)
-		
 	
 def permanent_title(term, program_title): # Defines a header with three lines
 
@@ -189,7 +187,7 @@ def sysinfo(term, position):
 	MEM = mem.stdout.decode('utf-8').replace('\n','')+'K'
 	position[0]+=2
 
-	print(text_justify_left(term, position,'Storage topology:'))
+	print(text_justify_left(term, position,set_var_lang('STORAGE_TOPOLOGY')))
 	position = resolve_uw_display(term)
 	lsblk = subprocess.run(['sh','-c','fdisk -o Device,Size,Type -l | grep -i /dev/ | grep -v -i sectors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	lsbblk_lines = lsblk.stdout.decode('utf-8').splitlines()
@@ -226,10 +224,10 @@ def sysinfo(term, position):
 	position[0] = y
 	hostname = socket.gethostname()
 	IPAddr = socket.gethostbyname(hostname)
-	print(text_justify_left_middle(term, position, "IP Address: "+IPAddr))
+	print(text_justify_left_middle(term, position, set_var_lang('IP_ADDRESS')+IPAddr))
 	position[0]+=2
 	
-	print(text_justify_left_middle(term, position, "Time and Date settings:"))
+	print(text_justify_left_middle(term, position, set_var_lang('TIME_DATE_SETTINGS')))
 	position = resolve_uw_display(term)
 	timedate = subprocess.run(['sh','-c','timedatectl show'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	timedate_lines = timedate.stdout.decode('utf-8').splitlines()
@@ -243,12 +241,12 @@ def sysinfo(term, position):
 	image_id = arch_id.stdout.decode('utf-8').replace('\n','')
 	if  image_id == 'archlinux':
 		arch_version = subprocess.run(['sh','-c','cat /etc/os-release | grep -i image_version | awk -F\'=\' \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		print(text_justify_left_middle(term, position, 'Image: ' + image_id))
+		print(text_justify_left_middle(term, position, set_var_lang('IMAGE') + image_id))
 		position[0]+=1
-		print(text_justify_left_middle(term, position, 'Image Version: ' + arch_version.stdout.decode('utf-8').replace('\n','')))
+		print(text_justify_left_middle(term, position, set_var_lang('IMAGE_VERSION') + arch_version.stdout.decode('utf-8').replace('\n','')))
 		IMAGE_ID = True
 	else:
-		print(text_justify_left_middle(term, position, 'THIS IS NOT A ARCHLINUX LIVE SYSTEM'))
+		print(text_justify_left_middle(term, position, set_var_lang('NOT_ARCH')))
 	
 	position3 = resolve_uw_display(term)
 	if position2[0] >= position3[0]:
@@ -269,7 +267,7 @@ def choose_disk(term, position):
 		while disk_in_the_system == False:
 			position[0] = preserv_position[0]
 			position[1] = preserv_position[1]
-			SYSTEMDISK = input(term.move_yx(position[0], position[1])+'Enter system disk (Ex. /dev/nvme1n1): '+term.clear_eos())
+			SYSTEMDISK = input(term.move_yx(position[0], position[1]) + set_var_lang('ENTER_SYSTEM_DISK')+term.clear_eos())
 			if SYSTEMDISK.find('/dev/')==-1 and len(SYSTEMDISK) >=2:
 				SYSTEMDISK = '/dev/'+SYSTEMDISK
 			for idx, lines in enumerate(lsbblk_lines):
@@ -277,7 +275,7 @@ def choose_disk(term, position):
 				position[1] = preserv_position[1]
 				if lines.find(SYSTEMDISK)!=-1 and len(SYSTEMDISK) >=2:
 					disk_in_the_system = True
-					text = text_justify_left(term, position, 'Accept \''+term.bold(SYSTEMDISK)+'\' as the system disk?')
+					text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0] +term.bold(SYSTEMDISK)+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
 					print(text)
 					position[1] = position[1]+term.length(text)+2
 					select_item=choices_horizontal_menu(term, position,YES_OR_NO)
@@ -318,7 +316,6 @@ def set_sagittarius_fstab():
 				if line_row[0] == 'Multimedia':
 					MNTMULTIMEDIA_ID = line_row[1].replace('\n','')
 		for idx1, lines1 in enumerate(lsbblk_lines):
-			print(lines1)
 			if lines1.find(MNTDATA1_ID)!=-1:        # /mnt/Data1
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
@@ -394,20 +391,20 @@ def enumerate_partitions(term):
 		if lines.find(SYSTEMDISK) !=-1:
 			partitions+=1
 	position = resolve_uw_display(term)
-	print(term.move_yx(position[0], position[1]) + 'Found ' + str(partitions) + ' partitions on ' + SYSTEMDISK)
+	print(term.move_yx(position[0], position[1]) + set_var_lang('FOUND_PARTITIONS')[0] + str(partitions) + set_var_lang('FOUND_PARTITIONS')[1] + SYSTEMDISK)
 	match partitions:
 		case 0:
-			print(term.move_yx(position[0]+1, position[1]) + 'Setup system to use entire disk - Two partitions EFI/Root.')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
 		case 1:
-			print(term.move_yx(position[0]+1, position[1]) + 'Setup system to use entire disk - Two partitions EFI/Root.')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
 		case 2:
-			print(term.move_yx(position[0]+1, position[1]) + 'Setup system to use entire disk - Two partitions EFI/Root.')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
 		case 3:
-			print(term.move_yx(position[0]+1, position[1]) + 'Assuming part1=EFI, part2=Root and part3=Home')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('3_PARTITIONS'))
 		case 4:
-			print(term.move_yx(position[0]+1, position[1]) + 'Assuming part1=EFI, part2=Boot, part3=Root and part4=Home')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('4_PARTITIONS'))
 		case _:
-			print(term.move_yx(position[0]+1, position[1]) + 'Assuming part1=EFI, part2=Boot, part3=Root and part4=Home')
+			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('4_PARTITIONS'))
 	return partitions
 			
 def disk_setup(term, position):
@@ -424,13 +421,13 @@ def disk_setup(term, position):
 	position = resolve_uw_display(term,1)
 	if NVME0N1 or SDA or VDA:
 		if NVME0N1:	
-			text = text_justify_left(term, position, 'Accept '+term.bold('/dev/nvme0n1')+' as the system disk?')
+			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0] +term.bold('/dev/nvme0n1')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
 		if SDA:	
-			text = text_justify_left(term, position, 'Accept '+term.bold('/dev/sda')+' as the system disk?')
+			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/sda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
 		if VDA:	
-			text = text_justify_left(term, position, 'Accept '+term.bold('/dev/vda')+' as the system disk?')
+			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/vda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
 	else:
-		text = text_justify_left(term, position, 'No default disk detected, abort?')
+		text = text_justify_left(term, position, set_var_lang('NO_DEFAULT_DISK'))
 	print(text)
 
 	position[1] = position[1]+term.length(text)+2
@@ -452,7 +449,7 @@ def disk_setup(term, position):
 		if partitions <=2:
 			position = resolve_uw_display(term)
 			position[0]-=1
-			position[1]= position[1] + (len('Setup system to use entire disk - Two partitions EFI/Root.') + 3)
+			position[1]= position[1] + (len(set_var_lang('SETUP_ENTIRE_DISK')) + 3)
 			select_item=choices_horizontal_menu(term, position,PROCEED_OR_ABORT)
 			if select_item == PROCEED_OR_ABORT[0]:
 				ERASEDISK = True
@@ -487,13 +484,14 @@ def disk_setup(term, position):
 						FORMAT_ROOT = True
 					if  DISK_OPTIONS4[3] in select_items:
 						FORMAT_HOME = True
-					if  DISK_OPTIONS3[3] in select_items:
+					if  DISK_OPTIONS4[4] in select_items:
 						ERASEDISK = True
 						FORMAT_EFI = True
 						FORMAT_ROOT = True
 						FORMAT_BOOT = False
 						FORMAT_HOME = False
 				case _:
+					position = resolve_uw_display(term,1)
 					select_items = choices_multiple_options(term, position, DISK_OPTIONS4)
 					if  DISK_OPTIONS4[0] in select_items:
 						FORMAT_EFI = True
@@ -503,7 +501,7 @@ def disk_setup(term, position):
 						FORMAT_ROOT = True
 					if  DISK_OPTIONS4[3] in select_items:
 						FORMAT_HOME = True
-					if  DISK_OPTIONS3[3] in select_items:
+					if  DISK_OPTIONS4[4] in select_items:
 						ERASEDISK = True
 						FORMAT_EFI = True
 						FORMAT_ROOT = True
@@ -533,28 +531,28 @@ def set_usename(term,position):
 	global USERNAME
 	global DISPLAY_USERNAME
 
-	USERNAME = input(term.move_yx(position[0],position[1]) + 'Enter username: '+term.clear_eos())
+	USERNAME = input(term.move_yx(position[0],position[1]) + set_var_lang('ENTER_USERNAME') +term.clear_eos())
 	USERNAME = USERNAME.lower()
-	DISPLAY_USERNAME = input(term.move_yx(position[0]+1,position[1]) + 'Enter display name: ')
+	DISPLAY_USERNAME = input(term.move_yx(position[0]+1,position[1]) + set_var_lang('ENTER_DISPLAYNAME'))
 	pass
 
 def set_hostname(term,position):
 	global HOSTNAME
 
-	HOSTNAME = input(term.move_yx(position[0],position[1]) + 'Enter new hostname: '+term.clear_eos())
+	HOSTNAME = input(term.move_yx(position[0],position[1]) + set_var_lang('ENTER_HOSTNAME') + term.clear_eos())
 	HOSTNAME = HOSTNAME.lower()
 	pass
 	
 def set_locale(term,position):
 	global LANG
-	LOCAL_LANG = choices_single_option(term, position, list_locales(), 'Choose your locale: '+term.clear_eos())
+	LOCAL_LANG = choices_single_option(term, position, list_locales(), set_var_lang('ENTER_LOCALE') + term.clear_eos())
 	if LOCAL_LANG != '0':
 		LANG = LOCAL_LANG
 	pass
 
 def set_timezone(term,position):
 	global TIME_ZONE
-	LOCAL_TIME_ZONE = choices_single_option(term, position, list_timezones(), 'Choose your timezone: '+term.clear_eos())
+	LOCAL_TIME_ZONE = choices_single_option(term, position, list_timezones(), set_var_lang('ENTER_TIMEZONE') + term.clear_eos())
 	if LOCAL_TIME_ZONE != '0':
 		TIME_ZONE = LOCAL_TIME_ZONE
 	pass	
@@ -565,16 +563,16 @@ def set_password(term, position):
 	PASSWORD1 = 1
 	
 	while PASSWORD0!=PASSWORD1:	
-		print(term.move_yx(position[0],position[1]) + 'Defining root and '+ USERNAME + ' with the same password.' + term.clear_eos())
-		PASSWORD0=getpass.getpass(term.move_yx(position[0]+2,position[1]) + 'Enter '+ USERNAME +'/root password: '+term.clear_eos())
-		PASSWORD1=getpass.getpass(term.move_yx(position[0]+3,position[1]) + 'Confirm password: '+term.clear_eos())
+		print(term.move_yx(position[0],position[1]) + set_var_lang('DEFINING_PASSWORD')[0] + USERNAME + set_var_lang('DEFINING_PASSWORD')[1] + term.clear_eos())
+		PASSWORD0=getpass.getpass(term.move_yx(position[0]+2,position[1]) + set_var_lang('ENTER_PASSWORD')[0] + USERNAME + set_var_lang('ENTER_PASSWORD')[1] +term.clear_eos())
+		PASSWORD1=getpass.getpass(term.move_yx(position[0]+3,position[1]) + set_var_lang('CONFIRM_PASSWORD') +term.clear_eos())
 		if PASSWORD0!=PASSWORD1:
-			print(term.move_yx(position[0]+2,position[1]) + term.bold('Passwords do not match! Press any key to continue...')+term.clear_eos())
+			print(term.move_yx(position[0]+2,position[1]) + term.bold(set_var_lang('PASSWORDS_NOT_MATCH'))+term.clear_eos())
 			with term.cbreak(), term.hidden_cursor():
 				key = term.inkey()
 		else:
 			if PASSWORD0 == '':
-				print(term.move_yx(position[0]+2,position[1]) + term.bold('Empty password not allowed! Press any key to continue...')+term.clear_eos())
+				print(term.move_yx(position[0]+2,position[1]) + term.bold(set_var_lang('EMPTY_PASSWORDS'))+term.clear_eos())
 				PASSWORD1 = '1'
 				with term.cbreak(), term.hidden_cursor():
 					key = term.inkey()
@@ -582,7 +580,7 @@ def set_password(term, position):
 
 def set_keyboard(term,position):
 	global KEYBOARD_CONFIG
-	LOCAL_KEYBOARD_CONFIG = choices_single_option(term, position, list_keymaps(), 'Choose your keymap: '+term.clear_eos())
+	LOCAL_KEYBOARD_CONFIG = choices_single_option(term, position, list_keymaps(), set_var_lang('KEYMAP') + term.clear_eos())
 	if LOCAL_KEYBOARD_CONFIG != '0':
 		KEYBOARD_CONFIG = LOCAL_KEYBOARD_CONFIG
 	pass	
@@ -591,33 +589,30 @@ def user_info(term, position):
 	finish = True
 	global LANG, USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG
 
-	USER_INFO_OPTIONS =['Change username and display name.',
-						'Change hostname.',
-						'Change system language.',
-						'Change time zone.',
-						'Change keyboard config.']
+	USER_INFO_OPTIONS = set_var_lang('USER_INFO_OPTIONS')
+	USER_INFO_TEXT = set_var_lang('USER_INFO_TEXT')
 
 	selected_items = list(('0'))
 	
 	position = resolve_uw_display(term,1)
 	preserv_position = position
 	while finish:
-		USER_INFO=[term.bold(SYSTEM) + ' - Pre-selected options',
-				   ' ',
-				   'Main user: ' + USERNAME,
-				   'Display name: ' + DISPLAY_USERNAME,
-				   'Hostname: ' + HOSTNAME,
-				   'System locale: ' + LANG,
-				   'Time Zone: ' + TIME_ZONE,
-				   'Keyboard config: ' + KEYBOARD_CONFIG]
+		USER_INFO=[term.bold(SYSTEM) + USER_INFO_TEXT[0],
+				   USER_INFO_TEXT[1],
+				   USER_INFO_TEXT[2] + USERNAME,
+				   USER_INFO_TEXT[3] + DISPLAY_USERNAME,
+				   USER_INFO_TEXT[4] + HOSTNAME,
+				   USER_INFO_TEXT[5] + LANG,
+				   USER_INFO_TEXT[6] + TIME_ZONE,
+				   USER_INFO_TEXT[7] + KEYBOARD_CONFIG]
 		
 		position = preserv_position
 		text_print_list(term, position, USER_INFO)
 		position = resolve_uw_display(term,1)
-		selected_item = choices_horizontal_menu(term, position, YES_OR_NO, 'Accept this?')
+		selected_item = choices_horizontal_menu(term, position, YES_OR_NO, set_var_lang('ACCEPT_THIS'))
 		if selected_item == YES_OR_NO[1]:
 			position = resolve_uw_display(term,1)
-			selected_items=choices_multiple_options(term, position, USER_INFO_OPTIONS, 'Multiple selections - Choose what you like to modify:')
+			selected_items=choices_multiple_options(term, position, USER_INFO_OPTIONS, set_var_lang('MULTIPLE_SELECTIONS'))
 			if selected_items[0] != '0':
 				print(term.move_yx(position[0],position[1])+term.clear_eos())
 				for idx, item_line in enumerate(selected_items):
@@ -767,21 +762,14 @@ def system_options(term, position, SYSTEM_OPTIONS):
 	
 	choices_set_options_limit(term, 30)
 	
-	DEFAULT_OPTIONS = ['ZEN Kernel',
-					  'Mesa combo - For systems with GPUs/iGPUS AMD or Intel',
-					  'GNOME Basic - Minimal options - file manager, terminal, tweaks...',
-					  'Internet Browser - Firefox browser',
-					  'Video Player - VLC',
-					  'Text Editor - Geany and plugins',
-					  'System Monitor - Conky',
-					  'Usefull extras - p7zip, btop and yt-dlp']
+	DEFAULT_OPTIONS = set_var_lang('DEFAULT_OPTIONS')
 
 	while finish:
 		position = preserv_position
-		selected_items=choices_multiple_options(term, position, SYSTEM_OPTIONS, 'Choose your system components:', DEFAULT_OPTIONS)
+		selected_items=choices_multiple_options(term, position, SYSTEM_OPTIONS, set_var_lang('CHOOSE_COMPONENTS'), DEFAULT_OPTIONS)
 		if selected_items != '0':
 			if (SYSTEM_OPTIONS[2] in selected_items and SYSTEM_OPTIONS[3] in selected_items) or (SYSTEM_OPTIONS[4] in selected_items and SYSTEM_OPTIONS[5] in selected_items):
-				print(term.move_yx(position[0]+len(SYSTEM_OPTIONS)+3, position[1]) + 'Mesa/NVidia or Gnome/Plasma are mutual excludents, press any key to return to select options.')
+				print(term.move_yx(position[0]+len(SYSTEM_OPTIONS)+3, position[1]) + set_var_lang('MESA_NVIDIA'))
 				with term.cbreak(), term.hidden_cursor():
 					key = term.inkey()	
 			else:
@@ -821,8 +809,10 @@ def system_options(term, position, SYSTEM_OPTIONS):
 def disk_definition(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = format_home = '0'
 	mount_root = mount_boot = mount_efi = mount_home = mkdir_boot = mkdir_efi = mkdir_home = mkswapfile = swapon = '0'
+	
+	DISK_DEFINITION = set_var_lang('DISK_DEFINITION')
 
-	disk_commands = list((term.bold('The following changes will be made at disks:'),' '))
+	disk_commands = list((term.bold(DISK_DEFINITION[0]),' '))
 	
 	if SYSTEMDISK.find('nvme') == -1:
 		if FORMAT_HOME3 == False:
@@ -851,24 +841,24 @@ def disk_definition(term):
 		else:						
 			efi_number = 'p1'
 			root_number = 'p2'
-		create_gpt_label      = 'Create a new GPT Label on ' + term.bold(SYSTEMDISK) + ' (Erase all disk)'
-		create_efi_partition  = 'Create a EFI primary partition on ' + term.bold(SYSTEMDISK) + ' with 650MiB'
-		create_root_partition = 'Create a root primary partition on  ' + term.bold(SYSTEMDISK) + ' on free space available'
-		format_efi            = 'Format device ' + term.bold(SYSTEMDISK + efi_number) + ' as FAT32 and mount at ' + term.bold('/boot/efi')
-		format_root           = 'Format device ' + term.bold(SYSTEMDISK + root_number) + ' as EXT4 and mount at ' + term.bold('/')
+		create_gpt_label      = DISK_DEFINITION[1] + term.bold(SYSTEMDISK) + DISK_DEFINITION[2]
+		create_efi_partition  = DISK_DEFINITION[3] + term.bold(SYSTEMDISK) + DISK_DEFINITION[4]
+		create_root_partition = DISK_DEFINITION[5] + term.bold(SYSTEMDISK) + DISK_DEFINITION[6]
+		format_efi            = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + efi_number) + DISK_DEFINITION[8] + term.bold('/boot/efi')
+		format_root           = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + root_number) + DISK_DEFINITION[9] + term.bold('/')
 	else:
 		if FORMAT_EFI:
-			format_efi = 'Format device ' + term.bold(SYSTEMDISK + efi_number) + ' as FAT32 and mount at ' + term.bold('/boot/efi')
+			format_efi = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + efi_number) + DISK_DEFINITION[8] + term.bold('/boot/efi')
 		if FORMAT_BOOT:
-			format_boot = 'Format device ' + term.bold(SYSTEMDISK + boot_number) + ' as EXT4 and mount at ' + term.bold('/boot')
+			format_boot = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + boot_number) + DISK_DEFINITION[9] + term.bold('/boot')
 		if FORMAT_ROOT:
-			format_root = 'Format device ' + term.bold(SYSTEMDISK + root_number) + ' as EXT4 and mount at ' + term.bold('/')
+			format_root = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + root_number) + DISK_DEFINITION[9] + term.bold('/')
 		if FORMAT_HOME or FORMAT_HOME3:
-			format_home = 'Format device ' + term.bold(SYSTEMDISK + home_number) + ' as EXT4 and mount at ' + term.bold('/home')
+			format_home = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + home_number) + DISK_DEFINITION[9] + term.bold('/home')
 		else:
-			mount_home = 'Mount ' + term.bold(SYSTEMDISK + home_number) + ' at ' + term.bold('/home')
+			mount_home = DISK_DEFINITION[10] + term.bold(SYSTEMDISK + home_number) + DISK_DEFINITION[11] + term.bold('/home')
 
-	mkswapfile = 'Create and enable swapfile (size=' + MEM + ')'
+	mkswapfile = DISK_DEFINITION[12] + MEM
 
 	for verify_disk_options in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
 		if verify_disk_options != '0':
@@ -877,36 +867,37 @@ def disk_definition(term):
 	return disk_commands
 
 def packages_definition(term):
-	SELECTED_PACKAGES = list((term.bold('This packages will be installed:'),' '))
+	SELECTED_PACKAGES = list((term.bold(set_var_lang('PACKAGES_INSTALLED')),' '))
+	CHOSE_OPTIONS = set_var_lang('SYSTEM_OPTIONS')
 
 	if LTS == True:
-		SELECTED_PACKAGES.append(' - LTS Kernel')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[0])
 	if ZEN == True:
-		SELECTED_PACKAGES.append(' - ZEN Kernel')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[1])
 	if MESA == True:
-		SELECTED_PACKAGES.append(' - Mesa combo - For systems with GPUs/iGPUS AMD or Intel')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[2])
 	if NVIDIA == True:
-		SELECTED_PACKAGES.append(' - NVidia combo - For systems with GPUs NVidia')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[3])
 	if GNOME_BASIC == True:
-		SELECTED_PACKAGES.append(' - GNOME Basic - Minimal options - file manager, terminal, tweaks...')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[4])
 	if PLASMA_BASIC == True:
-		SELECTED_PACKAGES.append(' - Plasma/KDE Basic -  Minimal options - file manager, terminal...')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[5])
 	if CHROMIUM == True:
-		SELECTED_PACKAGES.append(' - Internet Browser - Chromium')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[6])
 	if FIREFOX == True:
-		SELECTED_PACKAGES.append(' - Internet Browser - Firefox browser')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[7])
 	if THUNDERBIRD == True:
-		SELECTED_PACKAGES.append(' - Email Client - Thunderbird')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[8])
 	if LIBREOFFICE == True:
-		SELECTED_PACKAGES.append(' - Office Suite - Libreoffice')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[9])
 	if VLC == True:
-		SELECTED_PACKAGES.append(' - Video Player - VLC')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[10])
 	if GEANY == True:
-		SELECTED_PACKAGES.append(' - Text Editor - Geany and plugins')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[11])
 	if CONKY == True:
-		SELECTED_PACKAGES.append(' - System Monitor - Conky')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[12])
 	if EXTRAS == True:
-		SELECTED_PACKAGES.append(' - Usefull extras - p7zip, btop and yt-dlp')
+		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[13])
 	return SELECTED_PACKAGES
 
 def confirm_options(term, position):
@@ -914,19 +905,21 @@ def confirm_options(term, position):
 	x = time.localtime()
 	prefix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
 	
+	USER_INFO_TEXT = set_var_lang('USER_INFO_TEXT2')
+	
 	global LOG_FILE_NAME, COMPLETE_LOG_FILE_NAME
 	LOG_FILE_NAME = prefix + '_first.log'
 	LOG_FILE_PATH = PATH + 'logs/'
 	COMPLETE_LOG_FILE_NAME = LOG_FILE_PATH + LOG_FILE_NAME 	
 	
-	USER_INFO=[term.bold('User and system definitions:'),
-			   '  ',
-			   'Main user: ' + term.bold(USERNAME),
-		       'Display name: ' + term.bold(DISPLAY_USERNAME),
-		       'Hostname: ' + term.bold(HOSTNAME),
-		       'System locale: ' + term.bold(LANG),
-		       'Time Zone: ' + term.bold(TIME_ZONE),
-		       'Keyboard config: ' + term.bold(KEYBOARD_CONFIG)]
+	USER_INFO=[term.bold(USER_INFO_TEXT[0]),
+			   USER_INFO_TEXT[1],
+			   USER_INFO_TEXT[2] + term.bold(USERNAME),
+		       USER_INFO_TEXT[3] + term.bold(DISPLAY_USERNAME),
+		       USER_INFO_TEXT[4] + term.bold(HOSTNAME),
+		       USER_INFO_TEXT[5] + term.bold(LANG),
+		       USER_INFO_TEXT[6] + term.bold(TIME_ZONE),
+		       USER_INFO_TEXT[7] + term.bold(KEYBOARD_CONFIG)]
 	
 	DISK_COMMANDS = disk_definition(term)
 	SELECTED_PACKAGES = packages_definition(term)
@@ -1055,7 +1048,9 @@ def read_files(file_name):
 
 def run_reflector():
 	REFLECTOR = 'reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
-	print('\nPlease wait.\n\nUpdating mirrorlist with reflector...\n(May take a while and is safe to ignore warnings)\n')
+	REFLECTOR_TEXT = set_var_lang('REFLECTOR')
+	REFLECTOR_TEXT.replace('#','\n')
+	print(REFLECTOR_TEXT)
 	result = subprocess.run(['sh','-c', REFLECTOR])
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result)+'\n')
@@ -1227,9 +1222,11 @@ def main():
 	position = list((0,0))
 
 	term = blessed.Terminal()
+	
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
 	
 	initial_args(sys.argv)
+	set_int_lang(term, INT_LANG)
 		 
 	with term.fullscreen():
 		try:
@@ -1237,20 +1234,26 @@ def main():
 				match STEP:
 					case 1: # Print inital statements and disk setup step
 						permanent_title(term, PROGRAM_TITLE) # Set the header with PROGRAM_TITLE text
-						position = resolve_uw_display(term)
+						position = resolve_uw_display(term, -1)
+						preserv_position = position
 						text_print_list(term, position, WELCOME_TEXT)
-						
 						position = resolve_uw_display(term)
-						step_title = text_justify_center(term, position, 'System Info')
+						select_item=choices_horizontal_menu(term, position,PROCEED_OR_ABORT)
+						if select_item==PROCEED_OR_ABORT[1]:
+							break
+						position = preserv_position
+						print(term.move_yx(position[0], position[1]) + term.clear_eos())
+						step_title = text_justify_center(term, position, set_var_lang('SYSTEM_INFO'))
 						print(term.bold(term.gray_on_blue(step_title)))
 						position = resolve_uw_display(term)
 						position = sysinfo(term, position)
+						position[0]+=1
 						if disk_setup(term, position):
 							STEP+=1
 					case 2:
 						permanent_title(term, PROGRAM_TITLE) # usa a função que segura o cabeçalho do terminal
 						position = resolve_uw_display(term,-1)
-						step_title = text_justify_center(term, position, 'Moment 1 - Config user and Regional Settings')
+						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_1'))
 						print(term.bold(term.gray_on_blue(step_title)))
 						if user_info(term, position):
 							STEP+=1
@@ -1259,7 +1262,7 @@ def main():
 					case 3:
 						permanent_title(term, PROGRAM_TITLE) # usa a função que segura o cabeçalho do terminal
 						position = resolve_uw_display(term,-1)
-						step_title = text_justify_center(term, position, 'Moment 1 - Define system setup options')
+						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_2'))
 						print(term.bold(term.gray_on_blue(step_title)))
 						if system_options(term, position, SYSTEM_OPTIONS):
 							STEP+=1
@@ -1269,7 +1272,7 @@ def main():
 						permanent_title(term, PROGRAM_TITLE) # usa a função que segura o cabeçalho do terminal
 						position = resolve_uw_display(term,-1)
 						permanent_position=position
-						step_title = text_justify_center(term, position, 'Moment 1 - Revise Options')
+						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_3'))
 						print(term.bold(term.gray_on_blue(step_title)))
 						if confirm_options(term, position):
 							STEP+=1
@@ -1277,12 +1280,14 @@ def main():
 							STEP-=1
 					case 5:
 						position = resolve_uw_display(term,1)
-						proceed_or_abort = choices_horizontal_menu(term, position, PROCEED_OR_ABORT, term.blink(term.bold('WARNING!!! Next step start destructive moment')) + term.clear_eos())
+						CASE_5 = set_var_lang('CASE_5')
+						proceed_or_abort = choices_horizontal_menu(term, position, PROCEED_OR_ABORT, term.blink(term.bold(CASE_5[0])) + term.clear_eos())
 						if proceed_or_abort == PROCEED_OR_ABORT[0]:
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring storage')
+							
+							step_title = text_justify_center(term, permanent_position, CASE_5[1])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							prepare_disk(term)
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Executing pacstrap')
+							step_title = text_justify_center(term, permanent_position, CASE_5[2])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							PACSTRAP = prepare_chroot()
 							for idx, command_to_run in enumerate(PACSTRAP):
@@ -1290,25 +1295,25 @@ def main():
 								with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 									logfile.write(str(result)+'\n')
 							set_sagittarius_fstab() # Function exclusive to Renata's desktop PC
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring pacman')
+							step_title = text_justify_center(term, permanent_position, CASE_5[3])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pacman()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Installing packages')
+							step_title = text_justify_center(term, permanent_position, CASE_5[4])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							chroot_packages(term)
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring hosts and hostname files')
+							step_title = text_justify_center(term, permanent_position, CASE_5[5])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_hosts_files()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring language, keyboard and timezone')
+							step_title = text_justify_center(term, permanent_position, CASE_5[6])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_regional_settings()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Creating user')
+							step_title = text_justify_center(term, permanent_position, CASE_5[7])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pass()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Configuring grub')
+							step_title = text_justify_center(term, permanent_position, CASE_5[8])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_bootloader()
-							step_title = text_justify_center(term, permanent_position, 'Moment 2 - Finishing configuration')
+							step_title = text_justify_center(term, permanent_position, CASE_5[9])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_daemons()
 							set_alacritty()
@@ -1319,7 +1324,7 @@ def main():
 							set_fish_functions()
 							save_log_file()
 							set_owner()  # This function set home folder permissions - need to be the last one
-							print('\nSetup finished...\n\nPress any key...\n\n')
+							print(CASE_5[10].replace('#','\n'))
 							with term.cbreak(), term.hidden_cursor():
 								key = term.inkey()
 							STEP+=1

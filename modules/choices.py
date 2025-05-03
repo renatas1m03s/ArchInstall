@@ -4,6 +4,27 @@ import blessed
 
 OPTIONS_LIMIT = 15
 
+def set_int_lang(term, lang):
+	global NAVIGATE_INSTRUCTIONS_SINGLE, NAVIGATE_INSTRUCTIONS_MULTIP, NOTHING_SELECTED, YES_OR_NO
+
+	match lang:
+		case 'en':
+			NAVIGATE_INSTRUCTIONS_SINGLE = 'Navigate with '+ term.bold('ARROWS/PgUP/PgDN') + ', press ' + term.bold('ENTER') + ' to select and proceed to next step.'
+			NAVIGATE_INSTRUCTIONS_MULTIP = 'Press ' + term.bold('SPACE') + ' to select item, ' + term.bold('ENTER') + ' to finish and proceed to next step.'
+			NOTHING_SELECTED = 'Nothing is selected, this is correct?'
+			YES_OR_NO = ['Yes','No']
+		case 'br':
+			NAVIGATE_INSTRUCTIONS_SINGLE = 'Use '+ term.bold('Setas/PgUP/PgDN') + ' para navegar, pressione ' + term.bold('ENTER') + ' para selecionar e prosseguir.'
+			NAVIGATE_INSTRUCTIONS_MULTIP = 'Pressione ' + term.bold('ESPAÇO') + ' para selecionar, ' + term.bold('ENTER') + ' para finalizar e prosseguir.'
+			NOTHING_SELECTED = 'Nada foi selecionado, é isso mesmo?'
+			YES_OR_NO = ['Sim','Não']
+		case _:
+			NAVIGATE_INSTRUCTIONS_SINGLE = 'Navigate with '+ term.bold('ARROWS/PgUP/PgDN') + ', press ' + term.bold('ENTER') + ' to select and proceed to next step.'
+			NAVIGATE_INSTRUCTIONS_MULTIP = 'Press ' + term.bold('SPACE') + ' to select item, ' + term.bold('ENTER') + ' to finish and proceed to next step.'
+			NOTHING_SELECTED = 'Nothing is selected, this is correct?'
+			YES_OR_NO = ['Yes','No']
+
+	
 def choices_set_options_limit(term, options_limit):
 	global OPTIONS_LIMIT
 	
@@ -85,7 +106,6 @@ def choices_horizontal_menu(term, position, menu, title=None):
 			else:
 				print(term.move_yx(y,x)+"[ ] "+item_menu)
 			x = x + len(menu[idx])+6
-#		print(term.move_yx(y+1,x)+"Press ENTER to select item and move on")
 		with term.cbreak(), term.hidden_cursor():
 			key = term.inkey()
 		if key.name == 'KEY_RIGHT' and idx_column < len(menu)-1:
@@ -106,8 +126,6 @@ def choices_single_option(term, position, menu, title=None):
 	finish = True
 	selected_item = '0'
 
-	navigate_instructions = 'Navigate with '+ term.bold('ARROWS/PgUP/PgDN') + ', press ' + term.bold('ENTER') + ' to select and proceed to next step.'	
-	
 	preserv_y = position[0]
 	y = position[0]
 	x = position[1]
@@ -130,7 +148,7 @@ def choices_single_option(term, position, menu, title=None):
 				if idx_row <= len(menu)-1 and (i+idx_offset) <= len(menu)-1:
 					print(term.move_yx(y+i,x) + "[ ] " + menu[i+idx_offset] + term.clear_eol)
 		
-		print(term.move_yx(y+2+i,x) + navigate_instructions + term.clear_eol, idx_row, idx_offset)
+		print(term.move_yx(y+2+i,x) + NAVIGATE_INSTRUCTIONS_SINGLE + term.clear_eol)
 		
 		with term.cbreak(), term.hidden_cursor():
 			key = term.inkey()
@@ -160,7 +178,6 @@ def choices_multiple_options(term, position, menu, title = None, selected_items 
 	preserv_y = y
 	preserv_x = x
 	encerra = True
-	YES_OR_NO = ['Yes','No']
 	yes_or_no = 0
 
 	if len(menu) <= OPTIONS_LIMIT:
@@ -194,7 +211,7 @@ def choices_multiple_options(term, position, menu, title = None, selected_items 
 				else:
 					print(term.move_yx(y,x) + "[ ] "+menu[i+idx_offset] + term.clear_eol)
 			y+=1 
-		print(term.move_yx(y+1,x)+'Press ' + term.bold('SPACE') + ' to select item, ' + term.bold('ENTER') + ' to finish and proceed to next step')
+		print(term.move_yx(y+1,x) + NAVIGATE_INSTRUCTIONS_MULTIP)
 		with term.cbreak(), term.hidden_cursor():
 			key = term.inkey()
 		if key.name == 'KEY_DOWN':
@@ -218,8 +235,8 @@ def choices_multiple_options(term, position, menu, title = None, selected_items 
 					selected_items.append(menu[idx_row])
 		if key.name == 'KEY_ENTER':
 			if selected_items[0] == '0':
-				print(term.move_yx(y+3,x)+'Nothing is selected, this is correct?')	
-				x = x+term.length(term.move_yx(y+3,x)+'Nothing is selected, this is correct?')+2
+				print(term.move_yx(y+3,x) + NOTHING_SELECTED)	
+				x = x+term.length(term.move_yx(y+3,x) + NOTHING_SELECTED)+2
 				position[0]=y+3
 				position[1]=x
 				yes_or_no=choices_horizontal_menu(term, position,YES_OR_NO)
