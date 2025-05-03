@@ -1049,8 +1049,7 @@ def read_files(file_name):
 def run_reflector():
 	REFLECTOR = 'reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 	REFLECTOR_TEXT = set_var_lang('REFLECTOR')
-	REFLECTOR_TEXT.replace('#','\n')
-	print(REFLECTOR_TEXT)
+	print(REFLECTOR_TEXT.replace('#','\n'))
 	result = subprocess.run(['sh','-c', REFLECTOR])
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result)+'\n')
@@ -1178,7 +1177,7 @@ def set_second_autostart():
 	AUTOSTART_PATH = '/mnt/home/' + USERNAME + '/.config/autostart'
 	AUTOSTART_FILE = AUTOSTART_PATH + '/second.desktop'
 	SECOND_DESKTOP = ['[Desktop Entry]\n',
-					  'Exec=gnome-terminal --geometry=100x40 -- /home/' + USERNAME + '/ArchInstall/second && exit\n',
+					  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second && exit\n',
 					  'Icon=application-x-shellscript\n',
 					  'Name=Teste Autostart\n',
 					  'Terminal=false\n',

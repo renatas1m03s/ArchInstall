@@ -54,7 +54,6 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	
 	pass
 
-	
 def set_gnome():
 	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/Arch-plus-BlackCat-QHD.png'
 	DESTINATION_PATH = '~/Pictures/'
@@ -67,6 +66,22 @@ def set_gnome():
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface icon-theme Tela-ubuntu-dark'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface accent-color orange'])
+
+def gnome_kde():
+	global GNOME
+	
+	GNOME = False
+	
+	CURRENT_DESKTOP_BIN = subprocess.run(['sh','-c','echo $XDG_CURRENT_DESKTOP'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	CURRENT_DESKTOP = CURRENT_DESKTOP_BIN.stdout.decode('utf-8')
+	CURRENT_DESKTOP = CURRENT_DESKTOP.replace('\n','')
+	CURRENT_DESKTOP = CURRENT_DESKTOP.lower()
+	
+	if CURRENT_DESKTOP == 'gnome':
+		set_gnome()
+		GNOME = True
+	pass
+
 
 def install_yay(term, position):
 	global YAY
@@ -262,7 +277,7 @@ def main():
 	PRINTABLE_AREA = 100
 	position = list((0,0))
 
-	set_gnome()
+	gnome_kde() # If on gnome, customize wallpaper, icons and color appearence
 	term = blessed.Terminal()
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
 
@@ -281,11 +296,12 @@ def main():
 						position = resolve_uw_display(term,1)
 						install_yay(term, position)
 						position = preserv_position
-						step_title = text_justify_center(term, position, 'Gnome Extensions')
-						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-						position = resolve_uw_display(term,1)
-						appearance_options(term, position)
-						position = preserv_position
+						if GNOME == True:
+							step_title = text_justify_center(term, position, 'Gnome Extensions')
+							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+							position = resolve_uw_display(term,1)
+							appearance_options(term, position)
+							position = preserv_position
 						step_title = text_justify_center(term, position, 'Apps (Misc).')
 						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 						position = resolve_uw_display(term,1)
