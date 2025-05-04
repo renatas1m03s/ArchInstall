@@ -750,7 +750,7 @@ def set_plymouth():
 	pass 
 
 def set_sddm_theme():
-	SDDM_DEFAULT_CONF = ['[Theme]','Current=breeze']
+	SDDM_DEFAULT_CONF = ['[Theme]','\nCurrent=breeze\n']
 	SDDM_D_PATH = '/mnt/etc/sddm.conf.d'
 	SDDM_DEFAULT_CONF_FILE = '/default.conf'
 	
