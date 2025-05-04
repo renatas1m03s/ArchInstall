@@ -19,17 +19,6 @@ from texts import *
 # choices_horizontal_menu, choices_single_option, choices_multiple_options
 from choices import *
 
-YES_OR_NO = ['Yes','No']
-
-PROCEED_OR_ABORT = ['Proceed','Abort']
-
-PROGRAM_TITLE = 'Arch Linux Post-Install Wizard - v0.11' 
-
-WELCOME_TEXT = ['Welcome to Arch Post-Install Wizard.',
-				' ',
-				'Now we have the oportunity to finish the system setup:',
-				' ',]
-				
 PACKAGES_OPTIONS = {'EXT_DASH_TO_DOCK':False ,'EXT_ARCH_UPDATE':False ,'EXT_APP_SYSTEM_TRAY':False,
                     'APP_CHROME':False ,'APP_EDGE':False ,'APP_ONLYOFFICE':False ,'APP_GIMP':False ,
                     'APP_KDENLIVE':False ,'APP_AVIDEMUX':False ,'APP_OBS':False ,'APP_QBITTORRENT':False ,
@@ -39,6 +28,67 @@ PACKAGES_OPTIONS = {'EXT_DASH_TO_DOCK':False ,'EXT_ARCH_UPDATE':False ,'EXT_APP_
                     
 PATH = os.path.dirname(__file__)+'/'
                     
+def set_var_lang(var):
+	EN_FILE = 'misc/en_US.dat'
+	BR_FILE = 'misc/pt_BR.dat'
+	TEXT=''
+
+	match INT_LANG:
+		case 'en':
+			with open(PATH+EN_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+		case 'br':
+			with open(PATH+BR_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+
+	return TEXT
+	
+def set_language(lang):
+
+	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE2, WELCOME_TEXT2
+
+	YES_OR_NO = set_var_lang('YES_OR_NO')
+	PROCEED_OR_ABORT = set_var_lang('PROCEED_OR_ABORT')
+	PROGRAM_TITLE2 = set_var_lang('PROGRAM_TITLE2')
+	WELCOME_TEXT2 = set_var_lang('WELCOME_TEXT2')
+	
+	pass
+
+def initial_args(argv):
+	global INT_LANG, NO_GNOME_CUSTOMIZATION
+	INT_LANG = 'en'
+	NO_GNOME_CUSTOMIZATION = False
+
+	if len(sys.argv) > 1:
+		for i, parameter in enumerate(sys.argv):
+			match parameter.lower():
+				case '-h':
+					print(set_var_lang('HELP_ARG2'))
+					STEP = 10
+				case '-n':
+					NO_GNOME_CUSTOMIZATION = True
+				case '-i':
+					if i+1 < len(sys.argv):
+						if sys.argv[i+1] == 'en' or sys.argv[i+1]=='br':
+							INT_LANG = sys.argv[i+1]
+		
+	set_language(INT_LANG)
+
+
 def permanent_title(term, program_title): # Defines a header with three lines
 
 	position=list((0,0))
@@ -77,7 +127,7 @@ def gnome_kde():
 	CURRENT_DESKTOP = CURRENT_DESKTOP.replace('\n','')
 	CURRENT_DESKTOP = CURRENT_DESKTOP.lower()
 	
-	if CURRENT_DESKTOP == 'gnome':
+	if CURRENT_DESKTOP == 'gnome' and NO_GNOME_CUSTOMIZATION == False:
 		set_gnome()
 		GNOME = True
 	pass
@@ -259,13 +309,12 @@ def finish_app(term,position):
 	FINISH = False
 			
 	while FINISH == False:
-		text = text_justify_left(term, position, 'Remove "Welcome Wizard" from autostart and reboot?')
+		text = text_justify_left(term, position, 'Remove "Welcome Wizard" from autostart?')
 		print(text)
 		position[0] += 1
 		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
 		if select_item == YES_OR_NO[0]:
 			subprocess.run(['sh', '-c','rm $HOME/.config/autostart/second.desktop'])		
-			subprocess.run(['sh', '-c','gnome-session-quit --reboot'])
 			FINISH = True
 			return True
 		else:
@@ -277,19 +326,22 @@ def main():
 	PRINTABLE_AREA = 100
 	position = list((0,0))
 
-	gnome_kde() # If on gnome, customize wallpaper, icons and color appearence
+	 # If on gnome, customize wallpaper, icons and color appearence
 	term = blessed.Terminal()
 	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
+	initial_args(sys.argv)
+	set_int_lang(term, INT_LANG)
+	gnome_kde()
 
 	with term.fullscreen():
 		try:
 			while True:
 				match STEP:
 					case 1: # Print inital statements and disk setup step
-						permanent_title(term, PROGRAM_TITLE) # Set the header with PROGRAM_TITLE text
+						permanent_title(term, PROGRAM_TITLE2) # Set the header with PROGRAM_TITLE text
 						position = resolve_uw_display(term)
 						preserv_position = position
-						text_print_list(term, position, WELCOME_TEXT)
+						text_print_list(term, position, WELCOME_TEXT2)
 						position = resolve_uw_display(term)
 						step_title = text_justify_center(term, position, 'AUR Helper')
 						print(term.bold(term.gray_on_blue(step_title)))

@@ -750,9 +750,9 @@ def set_plymouth():
 	pass 
 
 def system_options(term, position, SYSTEM_OPTIONS):
-	global LTS, ZEN, MESA, NVIDIA, GNOME_BASIC, PLASMA_BASIC, CHROMIUM, FIREFOX, THUNDERBIRD, LIBREOFFICE, VLC, GEANY, CONKY, EXTRAS
+	global LTS, ZEN, MESA, NVIDIA, GNOME_BASIC, PLASMA_BASIC, CHROMIUM, FIREFOX, THUNDERBIRD, LIBREOFFICE, VLC, GEANY, CONKY, EXTRAS, NO_GNOME_CUSTOMIZATIONS
 	
-	LTS = ZEN = MESA = NVIDIA = GNOME_BASIC = PLASMA_BASIC = CHROMIUM = FIREFOX = THUNDERBIRD = LIBREOFFICE = VLC = GEANY = CONKY = EXTRAS = False
+	LTS = ZEN = MESA = NVIDIA = GNOME_BASIC = PLASMA_BASIC = CHROMIUM = FIREFOX = THUNDERBIRD = LIBREOFFICE = VLC = GEANY = CONKY = EXTRAS = NO_GNOME_CUSTOMIZATIONS = False
 
 	finish =  True
 	selected_items = list(('0'))
@@ -801,6 +801,8 @@ def system_options(term, position, SYSTEM_OPTIONS):
 					CONKY = True
 				if SYSTEM_OPTIONS[13] in selected_items:
 					EXTRAS = True
+				if SYSTEM_OPTIONS[14] in selected_items:
+					NO_GNOME_CUSTOMIZATIONS = True
 				finish =  False
 				return True
 		else:
@@ -1176,13 +1178,21 @@ def set_daemons():
 def set_second_autostart():
 	AUTOSTART_PATH = '/mnt/home/' + USERNAME + '/.config/autostart'
 	AUTOSTART_FILE = AUTOSTART_PATH + '/second.desktop'
-	SECOND_DESKTOP = ['[Desktop Entry]\n',
-					  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second && exit\n',
+	SECOND_DESKTOP1 = ['[Desktop Entry]\n',
+					  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second -i ' + INT_LANG + '&& exit\n',
 					  'Icon=application-x-shellscript\n',
-					  'Name=Teste Autostart\n',
+					  'Name=Autostart Wizard\n',
 					  'Terminal=false\n',
 					  'Type=Application\n',
 					  'X-KDE-AutostartScript=true\n' ]
+	SECOND_DESKTOP2 = ['[Desktop Entry]\n',
+				  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second -i ' + INT_LANG + ' -n && exit\n',
+				  'Icon=application-x-shellscript\n',
+				  'Name=Autostart Wizard\n',
+				  'Terminal=false\n',
+				  'Type=Application\n',
+				  'X-KDE-AutostartScript=true\n' ]
+
 	try:
 		os.makedirs(AUTOSTART_PATH)
 		print(f"Nested directories '{AUTOSTART_PATH}' created successfully.")
@@ -1193,8 +1203,12 @@ def set_second_autostart():
 	except Exception as e:
 		print(f"An error occurred: {e}")
 	with open(AUTOSTART_FILE, 'a') as FILE:
-		for i, line in enumerate(SECOND_DESKTOP):
-			FILE.writelines(line)
+		if NO_GNOME_CUSTOMIZATIONS == True:
+			for i, line in enumerate(SECOND_DESKTOP2):
+				FILE.writelines(line)
+		else:
+			for i, line in enumerate(SECOND_DESKTOP1):
+				FILE.writelines(line)
 	pass 
  
 def save_log_file():
