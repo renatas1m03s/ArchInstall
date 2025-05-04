@@ -749,6 +749,26 @@ def set_plymouth():
 		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result2)+'\n')
 	pass 
 
+def set_sddm_theme():
+	SDDM_DEFAULT_CONF = ['[Theme]','Current=breeze']
+	SDDM_D_PATH = '/mnt/etc/sddm.conf.d'
+	SDDM_DEFAULT_CONF_FILE = '/default.conf'
+	
+	try:
+		os.makedirs(SDDM_D_PATH)
+		print(f"Nested directories '{SDDM_D_PATH}' created successfully.")
+	except FileExistsError:
+		print(f"One or more directories in '{SDDM_D_PATH}' already exist.")
+	except PermissionError:
+		print(f"Permission denied: Unable to create '{SDDM_D_PATH}'.")
+	except Exception as e:
+		print(f"An error occurred: {e}")
+
+	with open(SDDM_D_PATH + SDDM_DEFAULT_CONF_FILE, 'a') as FILE:
+		for i, line in enumerate(SDDM_DEFAULT_CONF):
+				FILE.writelines(line)
+	pass 		
+
 def system_options(term, position, SYSTEM_OPTIONS):
 	global LTS, ZEN, MESA, NVIDIA, GNOME_BASIC, PLASMA_BASIC, CHROMIUM, FIREFOX, THUNDERBIRD, LIBREOFFICE, VLC, GEANY, CONKY, EXTRAS, NO_GNOME_CUSTOMIZATIONS
 	
@@ -1171,6 +1191,7 @@ def set_daemons():
 		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
 	if PLASMA_BASIC == True:
 		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
+		set_sddm_theme()
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result1)+'\n' + str(result2)+'\n'+ str(result3)+'\n'+ str(result4)+'\n'+ str(result5)+'\n'+ str(result6)+'\n'+ str(result7)+'\n'+ str(result8)+'\n'+ str(result9)+'\n')
 	pass 
@@ -1179,7 +1200,7 @@ def set_second_autostart():
 	AUTOSTART_PATH = '/mnt/home/' + USERNAME + '/.config/autostart'
 	AUTOSTART_FILE = AUTOSTART_PATH + '/second.desktop'
 	SECOND_DESKTOP1 = ['[Desktop Entry]\n',
-					  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second -i ' + INT_LANG + '&& exit\n',
+					  'Exec=alacritty -o "window.dimensions.lines=40" -o "window.dimensions.columns=100" -e /home/' + USERNAME + '/ArchInstall/second -i ' + INT_LANG + ' && exit\n',
 					  'Icon=application-x-shellscript\n',
 					  'Name=Autostart Wizard\n',
 					  'Terminal=false\n',
