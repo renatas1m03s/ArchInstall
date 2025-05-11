@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Sysinfo
+Exec=/home/renata/Scripts/sysinfo.sh
+StartupNotify=false
+Terminal=false
+Icon=virt-manager
+Categories=System;Monitor;
+X-KDE-AutostartScript=true
