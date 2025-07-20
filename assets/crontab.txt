@@ -1,0 +1,6 @@
+0 2 * * * /mnt/Backup/backup.sh
+*/10 * * * * /home/renata/SystemInfo/systeminfo.sh
+*/20 * * * * /home/renata/SystemInfo/fast-test.sh
+*/3 * * * * /home/renata/Scripts/mon-pihole.sh
+*/3 * * * * /home/renata/Scripts/teste-pihole1.sh
+*/3 * * * * /home/renata/Scripts/teste-pihole2.sh

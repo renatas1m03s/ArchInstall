@@ -105,12 +105,12 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	pass
 
 def set_gnome():
-	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/Arch-plus-BlackCat-QHD.png'
+	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/wallpaper1.jpg'
 	DESTINATION_PATH = '~/Pictures/'
 	subprocess.run(['sh', '-c','cp ' + WALLPAPER_FILE_PATH + ' ' + DESTINATION_PATH])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-options \'spanned\''])
-	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
-	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri-dark file:///home/renata/Pictures/Arch-plus-BlackCat-QHD.png'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri file:///home/renata/Pictures/wallpaper1.jpg'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri-dark file:///home/renata/Pictures/wallpaper1.jpg'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences button-layout \'appmenu:minimize,maximize,close\''])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface color-scheme prefer-dark'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
