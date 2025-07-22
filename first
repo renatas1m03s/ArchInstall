@@ -284,10 +284,9 @@ def choose_disk(term, position):
 
 def set_sagittarius_fstab():
 
-	MNTDATA1_BOOLEAN = False
-	MNTDATA2_BOOLEAN = False
+	MNTDATA_BOOLEAN = False
+	MNTMISC_BOOLEAN = False
 	MNTSTEAM1_BOOLEAN = False
-	MNTSTEAM2_BOOLEAN = False
 	MNTRETRO_BOOLEAN = False
 	MNTBACKUP_BOOLEAN = False
 	MNTMULTIMEDIA_BOOLEAN = False
@@ -301,14 +300,12 @@ def set_sagittarius_fstab():
 		with open(PATH+FSTAB_EXTRA) as file:
 			for line in file:
 				line_row = line.split(',')
-				if line_row[0] == 'Data1':
-					MNTDATA1_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Data2':
-					MNTDATA2_ID = line_row[1].replace('\n','')
+				if line_row[0] == 'Data':
+					MNTDATA_ID = line_row[1].replace('\n','')
+				if line_row[0] == 'Misc':
+					MNTMISC_ID = line_row[1].replace('\n','')
 				if line_row[0] == 'Steam1':
 					MNTSTEAM1_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Steam2':
-					MNTSTEAM2_ID = line_row[1].replace('\n','')
 				if line_row[0] == 'Retro':
 					MNTRETRO_ID = line_row[1].replace('\n','')
 				if line_row[0] == 'Backup':
@@ -316,24 +313,24 @@ def set_sagittarius_fstab():
 				if line_row[0] == 'Multimedia':
 					MNTMULTIMEDIA_ID = line_row[1].replace('\n','')
 		for idx1, lines1 in enumerate(lsbblk_lines):
-			if lines1.find(MNTDATA1_ID)!=-1:        # /mnt/Data1
+			if lines1.find(MNTDATA_ID)!=-1:        # /mnt/Data
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
 					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
 						if lines2.find(MNTDATA_ID)!=-1:
-							MNTDATA1_BOOLEAN = True
+							MNTDATA_BOOLEAN = True
 				if MNTDATA_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Data1\nUUID=' + MNTDATA_ID + '       /mnt/Data1        ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
-			if lines1.find(MNTDATA2_ID)!=-1:        # /mnt/Data2
+						FSTAB.write('\n# Data\nUUID=' + MNTDATA_ID + '       /mnt/Data        ext4           rw,relatime     0 0\n')
+			if lines1.find(MNTMISC_ID)!=-1:        # /mnt/Misc
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
 					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTDATA2_ID)!=-1:
-							MNTDATA2_BOOLEAN = True
-				if MNTDATA_BOOLEAN == False:
+						if lines2.find(MNTMISC_ID)!=-1:
+							MNTMISC_BOOLEAN = True
+				if MNTMISC_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Data2\nUUID=' + MNTDATA_ID + '       /mnt/Data2        ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# Misc\nUUID=' + MNTMISC_ID + '       /mnt/Misc        ext4           rw,relatime     0 0\n')
 			if lines1.find(MNTSTEAM1_ID)!=-1:      # /mnt/SteamGames1
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
@@ -342,16 +339,7 @@ def set_sagittarius_fstab():
 							MNTSTEAM1_BOOLEAN = True
 				if MNTSTEAM1_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# SteamGames1\nUUID=' + MNTSTEAM1_ID + '       /mnt/SteamGames1 ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
-			if lines1.find(MNTSTEAM2_ID)!=-1:      # /mnt/SteamGames2
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTSTEAM2_ID)!=-1:
-							MNTSTEAM2_BOOLEAN = True
-				if MNTSTEAM2_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# SteamGames2\nUUID=' + MNTSTEAM2_ID + '       /mnt/SteamGames2 ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# SteamGames1\nUUID=' + MNTSTEAM1_ID + '       /mnt/SteamGames1 ext4           rw,relatime     0 0\n')
 			if lines1.find(MNTRETRO_ID)!=-1:       # /mnt/RetroGames
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
@@ -360,7 +348,7 @@ def set_sagittarius_fstab():
 							MNTRETRO_BOOLEAN = True
 				if MNTRETRO_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# RetroGames\nUUID=' + MNTRETRO_ID + '       /mnt/RetroGames  ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# RetroGames\nUUID=' + MNTRETRO_ID + '       /mnt/RetroGames  ext4           rw,relatime     0 0\n')
 			if lines1.find(MNTBACKUP_ID)!=-1:      # /mnt/Backup
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
@@ -369,7 +357,7 @@ def set_sagittarius_fstab():
 							MNTBACKUP_BOOLEAN = True
 				if MNTBACKUP_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Backup\nUUID=' + MNTBACKUP_ID + '       /mnt/Backup      ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# Backup\nUUID=' + MNTBACKUP_ID + '       /mnt/Backup      ext4           rw,relatime     0 0\n')
 			if lines1.find(MNTMULTIMEDIA_ID)!=-1:  # /mnt/Multimedia
 				with open(FSTABFILE) as FSTAB:
 					FSTAB_file = FSTAB.read()
@@ -378,7 +366,7 @@ def set_sagittarius_fstab():
 							MNTMULTIMEDIA_BOOLEAN = True
 				if MNTMULTIMEDIA_BOOLEAN == False:
 					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Multimedia\nUUID=' + MNTMULTIMEDIA_ID + '       /mnt/Multimedia  ext4           nosuid,nodev,nofail,x-gvfs-show 0 0\n')
+						FSTAB.write('\n# Multimedia\nUUID=' + MNTMULTIMEDIA_ID + '       /mnt/Multimedia  ext4           rw,relatime     0 0\n')
 		return True
 	except Exception:
 		return False
