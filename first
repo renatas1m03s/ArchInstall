@@ -189,7 +189,7 @@ def sysinfo(term, position):
 
 	print(text_justify_left(term, position,set_var_lang('STORAGE_TOPOLOGY')))
 	position = resolve_uw_display(term)
-	lsblk = subprocess.run(['sh','-c','fdisk -o Device,Size,Type -l | grep -i /dev/ | grep -v -i sectors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	lsblk = subprocess.run(['sh','-c','lsblk -a -o NAME,SIZE,TYPE,MODEL | grep disk | awk \'{print "Device: /dev/"$1" - Size: "$2" - Model: "$4" "$5" "$6" "$7}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	lsbblk_lines = lsblk.stdout.decode('utf-8').splitlines()
 	for idx, lines in enumerate(lsbblk_lines):
 		print(text_justify_left(term, position,lines))
