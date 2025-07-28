@@ -947,10 +947,11 @@ def prepare_disk(term):
 		
 		EFI_id_command = subprocess.run(['sh','-c','fdisk -l ' + SYSTEMDISK + ' | grep EFI' ], stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 		EFI_id = EFI_id_command.stdout.decode('utf-8').splitlines()
+		EFI_id = EFI_id.split()
 		EFI_id = EFI_id[0]
 		
 		mkdir_efi = 'mkdir -p /mnt/boot/efi'
-		mount_efi = 'mount ' + EFI_id + ' /mnt/boot/efi'
+		mount_efi = 'mount ' + str(EFI_id) + ' /mnt/boot/efi'
 		
 		for command_to_run in [format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
 			if command_to_run != '0':
