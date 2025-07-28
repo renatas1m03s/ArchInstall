@@ -952,8 +952,9 @@ def prepare_disk(term):
 		device_id = device_id_command.stdout.decode('utf-8').splitlines()
 		device_id = device_id[0]
 		format_root = 'mkfs.ext4 -F -L Root ' + str(device_id)
+		mount_root  = 'mount ' + str(device_id) + ' /mnt'
 		
-		for command_to_run in [format_root, mkswapfile, swapon]:
+		for command_to_run in [format_root, mount_root, mkswapfile, swapon]:
 			if command_to_run != '0':
 				result = subprocess.run(['sh','-c', command_to_run])
 				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
