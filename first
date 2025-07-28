@@ -4,7 +4,7 @@ import sys
 import os
 import blessed
 import subprocess
-import socket
+# import socket
 import getpass
 import time
 
@@ -111,7 +111,7 @@ def initial_args(argv):
 				HOSTNAME = SYSTEM
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
-				KEYBOARD_CONFIG = 'us-acentos'
+				KEYBOARD_CONFIG = 'br-abnt2'
 			if SYSTEM == 'phoenix':
 				USERNAME = 'renata'
 				DISPLAY_USERNAME = 'Renata Maria'
@@ -132,7 +132,7 @@ def initial_args(argv):
 				HOSTNAME = SYSTEM
 				LANG = '\'en_US.UTF-8\''
 				TIME_ZONE = 'America/Fortaleza'
-				KEYBOARD_CONFIG = 'us-acentos'
+				KEYBOARD_CONFIG = 'br-abnt2'
 		else:
 			SYSTEM = 'generic'
 			USERNAME = 'archlinux'
@@ -141,7 +141,6 @@ def initial_args(argv):
 			LANG = 'en_US.UTF-8'
 			TIME_ZONE = 'Etc/GMT0'
 			KEYBOARD_CONFIG = 'us-acentos'
-
 	else:
 		SYSTEM = 'generic'
 		USERNAME = 'archlinux'
@@ -149,7 +148,7 @@ def initial_args(argv):
 		HOSTNAME = 'arch'
 		LANG = 'en_US.UTF-8'
 		TIME_ZONE = 'Etc/GMT0'
-		KEYBOARD_CONFIG = 'us-acentos'
+		KEYBOARD_CONFIG = 'br-abnt2'
 		
 	set_language(INT_LANG)
 	
@@ -177,7 +176,19 @@ def sysinfo(term, position):
 		
 	position[0]+=1
 	y = position[0]
-	
+
+	arch_id = subprocess.run(['sh','-c','cat /etc/os-release | grep -i image_id | awk -F\'=\' \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	image_id = arch_id.stdout.decode('utf-8').replace('\n','')
+	if  image_id == 'archlinux':
+		arch_version = subprocess.run(['sh','-c','cat /etc/os-release | grep -i image_version | awk -F\'=\' \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		print(text_justify_left(term, position, set_var_lang('IMAGE') + image_id))
+		position[0]+=1
+		print(text_justify_left(term, position, set_var_lang('IMAGE_VERSION') + arch_version.stdout.decode('utf-8').replace('\n','')))
+		IMAGE_ID = True
+	else:
+		print(text_justify_left(term, position, set_var_lang('NOT_ARCH')))
+
+	position = resolve_uw_display(term, 1)
 	cpu = subprocess.run(['sh','-c','cat /proc/cpuinfo | grep -m 1 -i "model name" | awk -F: \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	print(text_justify_left(term, position,'CPU:'+cpu.stdout.decode('utf-8').replace('\n','')))
 	position[0]+=1
@@ -217,44 +228,14 @@ def sysinfo(term, position):
 			position[0]+=1
 		if NVME0N1 and SDA:
 			SDA = False
-	
-	position2 = resolve_uw_display(term)
-	position2[0] += 1
-	
-	position[0] = y
-	hostname = socket.gethostname()
-	IPAddr = socket.gethostbyname(hostname)
-	print(text_justify_left_middle(term, position, set_var_lang('IP_ADDRESS')+IPAddr))
-	position[0]+=2
-	
-	print(text_justify_left_middle(term, position, set_var_lang('TIME_DATE_SETTINGS')))
-	position = resolve_uw_display(term)
-	timedate = subprocess.run(['sh','-c','timedatectl show'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	timedate_lines = timedate.stdout.decode('utf-8').splitlines()
-	idx=0
-	for idx, lines in enumerate(timedate_lines):
-		print(text_justify_left_middle(term, position, lines))
-		position[0]+=1
 
-	position = resolve_uw_display(term)
-	arch_id = subprocess.run(['sh','-c','cat /etc/os-release | grep -i image_id | awk -F\'=\' \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	image_id = arch_id.stdout.decode('utf-8').replace('\n','')
-	if  image_id == 'archlinux':
-		arch_version = subprocess.run(['sh','-c','cat /etc/os-release | grep -i image_version | awk -F\'=\' \'{print $2}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		print(text_justify_left_middle(term, position, set_var_lang('IMAGE') + image_id))
-		position[0]+=1
-		print(text_justify_left_middle(term, position, set_var_lang('IMAGE_VERSION') + arch_version.stdout.decode('utf-8').replace('\n','')))
-		IMAGE_ID = True
-	else:
-		print(text_justify_left_middle(term, position, set_var_lang('NOT_ARCH')))
-	
 	position3 = resolve_uw_display(term)
 	if position2[0] >= position3[0]:
 		return position2
 	else:
 		return position3
 		
-def choose_disk(term, position):
+def set_systemdisk(term, position):
 	global SYSTEMDISK
 	close_loop = True
 	
@@ -282,7 +263,43 @@ def choose_disk(term, position):
 					if select_item==YES_OR_NO[0]:
 						close_loop = False
 
-def set_sagittarius_fstab():
+def set_dualboot(term, position):
+	global freespace_itens
+	
+	freespace = subprocess.run(['sh','-c','parted -s ' + SYSTEMDISK + ' print free | grep Free'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	freespace_lines = freespace.stdout.decode('utf-8').splitlines()
+	
+	freespace_itens = ['0']
+	for i,line in enumerate(freespace_lines):
+		if i==0:
+			freespace_itens[0] = line.split()
+		else:
+			freespace_itens.append(line.split())
+			
+	i=0
+	freespace_menu = ['0']
+	while i < len(freespace_lines):
+		if i == 0:
+			freespace_menu[0]='Area ' + str(i+1) + ' size: ' + freespace_itens[i][2]
+		else:
+			freespace_menu.append('Area ' + str(i+1) + ' size: ' + freespace_itens[i][2])
+		i+=1
+	
+	selected_area = choices_single_option(term, position, freespace_menu, 'Choose where to install Arch:')
+	i = freespace_menu.index(selected_area)
+	
+	return i
+	
+#	parted_command = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart ROOT ext4 ' + freespace_itens[i][0] + ' ' + freespace_itens[i][1]
+	
+#	device_id_command = subprocess.run(['sh','-c','blkid | grep ' + SYSTEMDISK + ' | grep ROOT | awk -F\':\' \'{print $1}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#	device_id = device_id_command.stdout.decode('utf-8').splitlines()
+#	device_id = device_id[0]
+	
+#	mkfs_command = 'mkfs.ext4 -F -L Root ' + str(device_id)
+#	print(parted_command + '\n' + mkfs_command)
+
+def set_custom_fstab():
 
 	MNTDATA_BOOLEAN = False
 	MNTMISC_BOOLEAN = False
@@ -371,130 +388,86 @@ def set_sagittarius_fstab():
 	except Exception:
 		return False
 
-def enumerate_partitions(term):
-	lsblk = subprocess.run(['sh','-c','fdisk -o Device,Size,Type -l | grep -iv \'disk \' | grep \'/dev\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	lsbblk_lines = lsblk.stdout.decode('utf-8').splitlines()	
-	partitions = 0
-	for idx, lines in enumerate(lsbblk_lines):
-		if lines.find(SYSTEMDISK) !=-1:
-			partitions+=1
-	position = resolve_uw_display(term)
-	print(term.move_yx(position[0], position[1]) + set_var_lang('FOUND_PARTITIONS')[0] + str(partitions) + set_var_lang('FOUND_PARTITIONS')[1] + SYSTEMDISK)
-	match partitions:
-		case 0:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
-		case 1:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
-		case 2:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('SETUP_ENTIRE_DISK'))
-		case 3:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('3_PARTITIONS'))
-		case 4:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('4_PARTITIONS'))
-		case _:
-			print(term.move_yx(position[0]+1, position[1]) + set_var_lang('4_PARTITIONS'))
-	return partitions
-			
 def disk_setup(term, position):
-	global NVME0N1, SDA, VDA, SYSTEMDISK, ERASEDISK, FORMAT_EFI, FORMAT_BOOT, FORMAT_ROOT, FORMAT_HOME, FORMAT_HOME3
+	global NVME0N1, SDA, VDA, SYSTEMDISK, WIPEDISK, DUALBOOT, CUSTOMDISK
 	
 	SYSTEMDISK = ''
-	ERASEDISK = FORMAT_EFI = FORMAT_BOOT = FORMAT_ROOT = FORMAT_HOME = FORMAT_HOME3 = False
+	FINISH = False
+	WIPEDISK = DUALBOOT = CUSTOMDISK = False
 	select_item = '0'
 	select_items = list(('0'))
+	
+	DISK_OPTIONS = set_var_lang('DISK_OPTIONS')
 	
 	text = text_justify_center(term, position, DISK_SETUP_WELCOME)
 	print(term.bold(term.gray_on_blue(text)))
 
 	position = resolve_uw_display(term,1)
-	if NVME0N1 or SDA or VDA:
-		if NVME0N1:	
-			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0] +term.bold('/dev/nvme0n1')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
-		if SDA:	
-			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/sda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
-		if VDA:	
-			text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/vda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
-	else:
-		text = text_justify_left(term, position, set_var_lang('NO_DEFAULT_DISK'))
-	print(text)
-
-	position[1] = position[1]+term.length(text)+2
-	select_item=choices_horizontal_menu(term, position,YES_OR_NO)
-
-	if select_item!='0':
-		if select_item==YES_OR_NO[1]:
-			position = resolve_uw_display(term)
-			choose_disk(term, position)
-		else:
-			if NVME0N1:	
-				SYSTEMDISK = '/dev/nvme0n1'
-			if SDA:	
-				SYSTEMDISK = '/dev/sda'
-			if VDA:	
-				SYSTEMDISK = '/dev/vda'
+	
+	while FINISH != True:
+		PRESERV_POSITION = position
+		selected_item = choices_single_option(term, position, DISK_OPTIONS)
+		if selected_item !='0':
+			if selected_item == DISK_OPTIONS[0]:
+				WIPEDISK = True
+			if selected_item == DISK_OPTIONS[1]:
+				DUALBOOT = True
+			if selected_item == DISK_OPTIONS[2]:
+				CUSTOMDISK = True
+			FINISH = True
+	
+	print(term.move_yx(position[0],position[1])+term.clear_eos())
 		
-		partitions = enumerate_partitions(term)
-		if partitions <=2:
-			position = resolve_uw_display(term)
-			position[0]-=1
-			position[1]= position[1] + (len(set_var_lang('SETUP_ENTIRE_DISK')) + 3)
-			select_item=choices_horizontal_menu(term, position,PROCEED_OR_ABORT)
-			if select_item == PROCEED_OR_ABORT[0]:
-				ERASEDISK = True
-				FORMAT_EFI = True
-				FORMAT_ROOT = True
-			else:
-				select_item = '0'
+#	position = resolve_uw_display(term, 1)
+	select_item = '0'	
+	if WIPEDISK or DUALBOOT:
+		if NVME0N1 or SDA or VDA:
+			if NVME0N1:	
+				text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0] +term.bold('/dev/nvme0n1')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
+			if SDA:	
+				text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/sda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
+			if VDA:	
+				text = text_justify_left(term, position, set_var_lang('ACCEPT_SYSTEM_DISK')[0]+term.bold('/dev/vda')+set_var_lang('ACCEPT_SYSTEM_DISK')[1])
 		else:
-			match partitions:
-				case 3:
-					position = resolve_uw_display(term,1)
-					select_items = choices_multiple_options(term, position, DISK_OPTIONS3)
-					if  DISK_OPTIONS3[0] in select_items:
-						FORMAT_EFI = True
-					if  DISK_OPTIONS3[1] in select_items:
-						FORMAT_ROOT = True
-					if  DISK_OPTIONS3[2] in select_items:
-						FORMAT_HOME3 = True
-					if  DISK_OPTIONS3[3] in select_items:
-						ERASEDISK = True
-						FORMAT_EFI = True
-						FORMAT_ROOT = True
-						FORMAT_HOME3 = False
-				case 4:
-					position = resolve_uw_display(term,1)
-					select_items = choices_multiple_options(term, position, DISK_OPTIONS4)
-					if  DISK_OPTIONS4[0] in select_items:
-						FORMAT_EFI = True
-					if  DISK_OPTIONS4[1] in select_items:
-						FORMAT_BOOT = True
-					if  DISK_OPTIONS4[2] in select_items:
-						FORMAT_ROOT = True
-					if  DISK_OPTIONS4[3] in select_items:
-						FORMAT_HOME = True
-					if  DISK_OPTIONS4[4] in select_items:
-						ERASEDISK = True
-						FORMAT_EFI = True
-						FORMAT_ROOT = True
-						FORMAT_BOOT = False
-						FORMAT_HOME = False
-				case _:
-					position = resolve_uw_display(term,1)
-					select_items = choices_multiple_options(term, position, DISK_OPTIONS4)
-					if  DISK_OPTIONS4[0] in select_items:
-						FORMAT_EFI = True
-					if  DISK_OPTIONS4[1] in select_items:
-						FORMAT_BOOT = True
-					if  DISK_OPTIONS4[2] in select_items:
-						FORMAT_ROOT = True
-					if  DISK_OPTIONS4[3] in select_items:
-						FORMAT_HOME = True
-					if  DISK_OPTIONS4[4] in select_items:
-						ERASEDISK = True
-						FORMAT_EFI = True
-						FORMAT_ROOT = True
-						FORMAT_BOOT = False
-						FORMAT_HOME = False
+			text = text_justify_left(term, position, set_var_lang('NO_DEFAULT_DISK'))
+		print(text)
+
+		position[1] = position[1]+term.length(text)+2
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+
+		if select_item!='0':
+			if select_item==YES_OR_NO[1]:
+				position = resolve_uw_display(term)
+				set_systemdisk(term, position)
+			else:
+				if NVME0N1:	
+					SYSTEMDISK = '/dev/nvme0n1'
+				if SDA:	
+					SYSTEMDISK = '/dev/sda'
+				if VDA:	
+					SYSTEMDISK = '/dev/vda'
+	else:
+		EFI = False
+		ROOT = False
+
+		mount_mnt = subprocess.run(['sh','-c','mount | grep /mnt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		mount_mnt_lines = mount_mnt.stdout.decode('utf-8').splitlines()
+
+		print(text_justify_left(term, position,'Pre-defined custom mount points:'))
+		position[0] = position[0] + 2
+
+		if len(mount_mnt_lines) >=1:
+			for idx, lines in enumerate(mount_mnt_lines):
+				print(text_justify_left(term, position, '-' + lines.replace('\n','') + str(position[0])))
+				if (lines.find('vfat') != -1) and (lines.find('boot') != -1): EFI = True
+				if (lines.find('ext4') != -1) and (lines.find('/mnt ') != -1): ROOT = True
+				position[0] = position[0] + 1
+			position[0] = position[0] + 1
+			if EFI and ROOT: 
+				print(text_justify_left(term, position,'EFI and Root founded'))
+			else:
+				print(text_justify_left(term, position,'Need a EFI Vfat and a ROOT ext4 partitions to proceed!!'))
+			key = term.inkey()
 	if select_items =='0':
 		return False
 	else:
@@ -817,34 +790,14 @@ def system_options(term, position, SYSTEM_OPTIONS):
 			return False
 
 def disk_definition(term):
-	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = format_home = '0'
-	mount_root = mount_boot = mount_efi = mount_home = mkdir_boot = mkdir_efi = mkdir_home = mkswapfile = swapon = '0'
+	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_root = '0'
+	mkswapfile = swapon = '0'
 	
 	DISK_DEFINITION = set_var_lang('DISK_DEFINITION')
 
 	disk_commands = list((term.bold(DISK_DEFINITION[0]),' '))
 	
-	if SYSTEMDISK.find('nvme') == -1:
-		if FORMAT_HOME3 == False:
-			efi_number = '1'
-			boot_number = '2'
-			root_number = '3'
-			home_number = '4'
-		else:
-			efi_number = '1'
-			root_number = '2'
-			home_number = '3'
-	else:
-		if FORMAT_HOME3 == False:						
-			efi_number = 'p1'
-			boot_number = 'p2'
-			root_number = 'p3'
-			home_number = 'p4'
-		else:
-			efi_number = 'p1'
-			root_number = 'p2'
-			home_number = 'p3'
-	if ERASEDISK:
+	if WIPEDISK:
 		if SYSTEMDISK.find('nvme') == -1:
 			efi_number = '1'
 			root_number = '2'
@@ -856,21 +809,15 @@ def disk_definition(term):
 		create_root_partition = DISK_DEFINITION[5] + term.bold(SYSTEMDISK) + DISK_DEFINITION[6]
 		format_efi            = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + efi_number) + DISK_DEFINITION[8] + term.bold('/boot/efi')
 		format_root           = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + root_number) + DISK_DEFINITION[9] + term.bold('/')
-	else:
-		if FORMAT_EFI:
-			format_efi = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + efi_number) + DISK_DEFINITION[8] + term.bold('/boot/efi')
-		if FORMAT_BOOT:
-			format_boot = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + boot_number) + DISK_DEFINITION[9] + term.bold('/boot')
-		if FORMAT_ROOT:
-			format_root = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + root_number) + DISK_DEFINITION[9] + term.bold('/')
-		if FORMAT_HOME or FORMAT_HOME3:
-			format_home = DISK_DEFINITION[7] + term.bold(SYSTEMDISK + home_number) + DISK_DEFINITION[9] + term.bold('/home')
-		else:
-			mount_home = DISK_DEFINITION[10] + term.bold(SYSTEMDISK + home_number) + DISK_DEFINITION[11] + term.bold('/home')
+	
+	if DUALBOOT:
+		position = resolve_uw_display(term, 1)
+		i = set_dualboot(term, position)
+		create_root_partition = DISK_DEFINITION[5] + freespace_itens[i][2] + DISK_DEFINITION[13]
 
 	mkswapfile = DISK_DEFINITION[12] + MEM
 
-	for verify_disk_options in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
+	for verify_disk_options in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mkswapfile, swapon]:
 		if verify_disk_options != '0':
 			disk_commands.append(verify_disk_options)
 
@@ -962,33 +909,16 @@ def confirm_options(term, position):
 	return True
 
 def prepare_disk(term):
-	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = format_home = '0'
-	mount_root = mount_boot = mount_efi = mount_home = mkdir_boot = mkdir_efi = mkdir_home = mkswapfile = swapon = '0'
+	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = '0'
+	mount_root = mount_efi = mkdir_efi = mkswapfile = swapon = '0'
 
 	term.move_yx(4,0)
 	term.clear_eos()
-	
-	if SYSTEMDISK.find('nvme') == -1:
-		if FORMAT_HOME3 == False:
-			efi_number = '1'
-			boot_number = '2'
-			root_number = '3'
-			home_number = '4'
-		else:
-			efi_number = '1'
-			root_number = '2'
-			home_number = '3'
-	else:
-		if FORMAT_HOME3 == False:						
-			efi_number = 'p1'
-			boot_number = 'p2'
-			root_number = 'p3'
-			home_number = 'p4'
-		else:
-			efi_number = 'p1'
-			root_number = 'p2'
-			home_number = 'p3'
-	if ERASEDISK:
+
+	mkswapfile = 'mkswap -U clear --size ' + MEM + ' --file /mnt/swapfile'
+	swapon     = 'swapon /mnt/swapfile'
+
+	if WIPEDISK:
 		if SYSTEMDISK.find('nvme') == -1:
 			efi_number = '1'
 			root_number = '2'
@@ -996,39 +926,37 @@ def prepare_disk(term):
 			efi_number = 'p1'
 			root_number = 'p2'
 		create_gpt_label      = 'parted -s --align optimal ' + SYSTEMDISK + ' mklabel gpt'
-		create_efi_partition  = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart PRIMARY fat32 0% 650M'
-		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart PRIMARY ext4 650M 100%'
+		create_efi_partition  = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart PRIMARY fat32 0% 512M'
+		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart PRIMARY ext4 512M 100%'
 		format_efi            = 'mkfs.fat -F32 -n EFI ' + SYSTEMDISK + efi_number
 		format_root           = 'mkfs.ext4 -F -L Root ' + SYSTEMDISK + root_number
 		mount_root            = 'mount ' + SYSTEMDISK + root_number + ' /mnt'
 		mkdir_efi             = 'mkdir -p /mnt/boot/efi'
 		mount_efi             = 'mount ' + SYSTEMDISK + efi_number + ' /mnt/boot/efi'
-	else:
-		if FORMAT_EFI:
-			format_efi = 'mkfs.fat -F32 -n EFI ' + SYSTEMDISK + efi_number
-		if FORMAT_BOOT:
-			format_boot = 'mkfs.ext4 -F -L Boot ' + SYSTEMDISK + boot_number
-		if FORMAT_ROOT:
-			format_root = 'mkfs.ext4 -F -L Root ' + SYSTEMDISK + root_number
-		if FORMAT_HOME or FORMAT_HOME3:
-			format_home = 'mkfs.ext4 -F -L Home ' + SYSTEMDISK + home_number
-		mount_root = 'mount ' + SYSTEMDISK + root_number + ' /mnt'			
-		if FORMAT_HOME3 ==  False:
-			mkdir_boot = 'mkdir /mnt/boot'
-			mount_boot = 'mount ' + SYSTEMDISK + boot_number + ' /mnt/boot'
-		mkdir_efi  = 'mkdir -p /mnt/boot/efi'
-		mount_efi  = 'mount ' + SYSTEMDISK + efi_number + ' /mnt/boot/efi'
-		mkdir_home = 'mkdir /mnt/home'
-		mount_home = 'mount ' + SYSTEMDISK + home_number + ' /mnt/home'
 
-	mkswapfile = 'mkswap -U clear --size ' + MEM + ' --file /mnt/swapfile'
-	swapon     = 'swapon /mnt/swapfile'
-
-	for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_boot, format_root, format_home, mount_root, mkdir_boot, mount_boot, mkdir_efi, mount_efi, mkdir_home, mount_home, mkswapfile, swapon]:
-		if command_to_run != '0':
-			result = subprocess.run(['sh','-c', command_to_run])
+		for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
+			if command_to_run != '0':
+				result = subprocess.run(['sh','-c', command_to_run])
+				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+					logfile.write(str(result)+'\n')
+	if DUALBOOT:
+		i = set_dualboot(term, position)	
+		
+		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart ROOT ext4 ' + freespace_itens[i][0] + ' ' + freespace_itens[i][1]
+		result = subprocess.run(['sh','-c', create_root_partition])
 			with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 				logfile.write(str(result)+'\n')
+				
+		device_id_command = subprocess.run(['sh','-c','blkid | grep ' + SYSTEMDISK + ' | grep ROOT | awk -F\':\' \'{print $1}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
+		device_id = device_id_command.stdout.decode('utf-8').splitlines()
+		device_id = device_id[0]
+		format_root = 'mkfs.ext4 -F -L Root ' + str(device_id)
+		
+		for command_to_run in [format_root, mkswapfile, swapon]
+			if command_to_run != '0':
+				result = subprocess.run(['sh','-c', command_to_run])
+				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+					logfile.write(str(result)+'\n')
  
 	x = time.localtime()
 	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)

@@ -1,0 +1,21 @@
+[1mUser and system definitions:(B[m
+ 
+Main user: [1mrenata(B[m
+Display name: [1mRenata Maria(B[m
+Hostname: [1mlinuxtest(B[m
+System locale: [1m'en_US.UTF-8'(B[m
+Time Zone: [1mAmerica/Fortaleza(B[m
+Keyboard config: [1mbr-abnt2(B[m
+[1mThe following changes will be made at disks:(B[m
+ 
+Create a root primary partition on 335kB free space
+Create and enable swapfile - 65019616K
+[1mThis are the chose options:(B[m
+ 
+ - Mesa combo - For systems with GPUs/iGPUS AMD or Intel
+ - GNOME Basic - Minimal options - file manager, terminal, tweaks...
+ - Internet Browser - Firefox browser
+ - Video Player - VLC
+ - Text Editor - Geany and plugins
+ - System Monitor - Conky
+ - Usefull extras - p7zip, btop and yt-dlp
