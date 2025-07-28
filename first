@@ -940,19 +940,20 @@ def prepare_disk(term):
 				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 					logfile.write(str(result)+'\n')
 	if DUALBOOT:
+		position = resolve_uw_display(term)
 		i = set_dualboot(term, position)	
 		
 		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart ROOT ext4 ' + freespace_itens[i][0] + ' ' + freespace_itens[i][1]
 		result = subprocess.run(['sh','-c', create_root_partition])
-			with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-				logfile.write(str(result)+'\n')
+		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+			logfile.write(str(result)+'\n')
 				
 		device_id_command = subprocess.run(['sh','-c','blkid | grep ' + SYSTEMDISK + ' | grep ROOT | awk -F\':\' \'{print $1}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 		device_id = device_id_command.stdout.decode('utf-8').splitlines()
 		device_id = device_id[0]
 		format_root = 'mkfs.ext4 -F -L Root ' + str(device_id)
 		
-		for command_to_run in [format_root, mkswapfile, swapon]
+		for command_to_run in [format_root, mkswapfile, swapon]:
 			if command_to_run != '0':
 				result = subprocess.run(['sh','-c', command_to_run])
 				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
