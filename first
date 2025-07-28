@@ -1245,7 +1245,7 @@ def main():
 								result=subprocess.run(['sh','-c', command_to_run]) # PACSTRAP and GENFSTAB
 								with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 									logfile.write(str(result)+'\n')
-							set_sagittarius_fstab() # Function exclusive to Renata's desktop PC
+							# set_sagittarius_fstab() # Function exclusive to Renata's desktop PC
 							step_title = text_justify_center(term, permanent_position, CASE_5[3])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pacman()
