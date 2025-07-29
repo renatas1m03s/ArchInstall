@@ -275,7 +275,6 @@ def set_systemdisk(term, position):
 				close_loop = True
 				return False
 			
-
 def set_dualboot(term, position):
 	global freespace_itens
 	
