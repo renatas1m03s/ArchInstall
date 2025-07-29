@@ -271,9 +271,9 @@ def set_systemdisk(term, position):
 			position[1] = position[1]+(term.length(set_var_lang('NO_SYSTEM_DISK'))+2)
 			select_item=choices_horizontal_menu(term, position,YES_OR_NO)
 			if select_item==YES_OR_NO[0]:
-				close_loop = True
 				return False
 			else:
+				close_loop = True
 				return True
 
 def set_dualboot(term, position):
