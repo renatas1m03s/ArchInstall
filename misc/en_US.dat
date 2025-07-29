@@ -17,6 +17,7 @@ IMAGE_VERSION=Image Version:
 NOT_ARCH=THIS IS NOT A ARCHLINUX LIVE SYSTEM
 ENTER_SYSTEM_DISK=Enter system disk (Ex. /dev/nvme1n1): 
 ACCEPT_SYSTEM_DISK=Accept ';' as the system disk?
+NO_SYSTEM_DISK=No system disk defined. Abort?
 FOUND_PARTITIONS=Found ; partitions on 
 SETUP_ENTIRE_DISK=Setup system to use entire disk - Two partitions EFI/Root.
 3_PARTITIONS=Assuming PART1->EFI, PART2->Root and PART3->Home
