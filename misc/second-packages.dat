@@ -1,6 +1,3 @@
-EXT_DASH_TO_DOCK=gnome-shell-extension-dash-to-panel
-EXT_ARCH_UPDATE=gnome-shell-extension-arch-update
-EXT_APP_SYSTEM_TRAY=gnome-shell-extension-appindicator
 APP_CHROME= google-chrome
 APP_EDGE= microsoft-edge-stable-bin
 APP_ONLYOFFICE= onlyoffice-bin
@@ -20,8 +17,4 @@ GAME_PROTONUP= protonup-qt
 GAME_RETROARCH= retroarch-git
 GAME_ES_DE= emulationstation-de
 GAME_GAMESCOPE= gamescope
-GAME_MANGOHUD= mangohud 
-
-
-gnome-shell-extension-arch-update
-gnome-shell-extension-appindicator
+GAME_MANGOHUD= mangohud

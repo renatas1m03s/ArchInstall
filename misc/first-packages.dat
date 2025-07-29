@@ -12,4 +12,4 @@ LIBREOFFICE= libreoffice-fresh
 VLC= vlc
 GEANY= geany geany-plugins
 CONKY= conky conky-manager2
-EXTRAS= fastfetch openvpn usb_modeswitch p7zip btop pacman-contrib adobe-source-han-sans-otc-fonts adobe-source-han-serif-otc-fonts noto-fonts noto-fonts-cjk noto-fonts-emoji yt-dlp
+EXTRAS= fastfetch openvpn usb_modeswitch p7zip btop pacman-contrib adobe-source-han-sans-otc-fonts adobe-source-han-serif-otc-fonts noto-fonts noto-fonts-cjk noto-fonts-emoji yt-dlp gnome-shell-extension-appindicator gnome-shell-extension-dash-to-panel gnome-shell-extension-vitals
