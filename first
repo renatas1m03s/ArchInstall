@@ -272,7 +272,9 @@ def set_systemdisk(term, position):
 			select_item=choices_horizontal_menu(term, position,YES_OR_NO)
 			if select_item==YES_OR_NO[0]:
 				close_loop = True
-
+				return False
+			else:
+				return True
 
 def set_dualboot(term, position):
 	global freespace_itens
@@ -440,7 +442,7 @@ def disk_setup(term, position):
 		if select_item!='0':
 			if select_item==YES_OR_NO[1]:
 				position = resolve_uw_display(term)
-				set_systemdisk(term, position)
+				DEFINED_SYSTEMDISK = set_systemdisk(term, position)
 			else:
 				if NVME0N1:	
 					SYSTEMDISK = '/dev/nvme0n1'
@@ -448,6 +450,7 @@ def disk_setup(term, position):
 					SYSTEMDISK = '/dev/sda'
 				if VDA:	
 					SYSTEMDISK = '/dev/vda'
+				DEFINED_SYSTEMDISK = True
 	else:
 		EFI = False
 		ROOT = False
@@ -470,7 +473,7 @@ def disk_setup(term, position):
 			else:
 				print(text_justify_left(term, position,'Need a EFI Vfat and a ROOT ext4 partitions to proceed!!'))
 			key = term.inkey()
-	if select_items =='0':
+	if select_items =='0' or DEFINED_SYSTEMDISK == False:
 		return False
 	else:
 		return True
