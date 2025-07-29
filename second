@@ -19,8 +19,7 @@ from texts import *
 # choices_horizontal_menu, choices_single_option, choices_multiple_options
 from choices import *
 
-PACKAGES_OPTIONS = {'EXT_DASH_TO_DOCK':False ,'EXT_ARCH_UPDATE':False ,'EXT_APP_SYSTEM_TRAY':False,
-                    'APP_CHROME':False ,'APP_EDGE':False ,'APP_ONLYOFFICE':False ,'APP_GIMP':False ,
+PACKAGES_OPTIONS = {'APP_CHROME':False ,'APP_EDGE':False ,'APP_ONLYOFFICE':False ,'APP_GIMP':False ,
                     'APP_KDENLIVE':False ,'APP_AVIDEMUX':False ,'APP_OBS':False ,'APP_QBITTORRENT':False ,
                     'APP_TERMIUS':False ,'APP_REMMINA':False ,'APP_DARKTABLE':False ,'APP_WINE':False ,
                     'APP_TELEGRAM':False,'GAME_KPAT':False,'GAME_STEAM':False,'GAME_PROTONUP':False,
@@ -154,32 +153,6 @@ def install_yay(term, position):
 			FINISH = True
 			return False
 
-def appearance_options(term, position):
-	global PACKAGES_OPTIONS
-	
-	FINISH = False
-	OPTIONS = ['Dash to Panel',
-	           'Arch Linux Updates Indicator.',
-	           'Apps Indicator - like KDE']
-
-	PRESERV_POSITION = position
-	
-	while FINISH == False:
-		position = PRESERV_POSITION
-		selected_items=choices_multiple_options(term, position, OPTIONS, 'Install gnome extensions?')
-		if selected_items != '0':
-			if 'Dash to Dock' in selected_items:
-				PACKAGES_OPTIONS['EXT_DASH_TO_DOCK'] = True
-#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-dash-to-dock'])
-			if 'Arch Linux Updates Indicator.' in selected_items:
-				PACKAGES_OPTIONS['EXT_ARCH_UPDATE'] = True
-#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-arch-update'])
-			if 'App System Tray - like KDE' in selected_items:
-				PACKAGES_OPTIONS['EXT_APP_SYSTEM_TRAY'] = True
-#				subprocess.run(['sh', '-c','yay -S --noconfirm gnome-shell-extension-appindicator-git'])
-		FINISH = True
-	return True
-	
 def apps_misc(term, position):
 	global PACKAGES_OPTIONS
 	
@@ -350,12 +323,6 @@ def main():
 						position = resolve_uw_display(term,1)
 						install_yay(term, position)
 						position = preserv_position
-						if GNOME == True:
-							step_title = text_justify_center(term, position, 'Gnome Extensions')
-							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-							position = resolve_uw_display(term,1)
-							appearance_options(term, position)
-							position = preserv_position
 						step_title = text_justify_center(term, position, 'Apps (Misc).')
 						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 						position = resolve_uw_display(term,1)
