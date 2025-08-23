@@ -87,7 +87,6 @@ def initial_args(argv):
 		
 	set_language(INT_LANG)
 
-
 def permanent_title(term, program_title): # Defines a header with three lines
 
 	position=list((0,0))
@@ -98,8 +97,8 @@ def permanent_title(term, program_title): # Defines a header with three lines
 	sys.stdout.write(term.move(0, 0))
 	sys.stdout.write(term.bold(term.gray_on_blue(program_title)))
 	sys.stdout.write(term.bold(term.blue_on_gray(navigation)))
-	sys.stdout.write(term.csr(3, term.height))
-	sys.stdout.write(term.move(3, 0))
+	sys.stdout.write(term.csr(2, term.height))
+	sys.stdout.write(term.move(2, 0))
 	
 	pass
 
@@ -146,12 +145,17 @@ def install_yay(term, position):
 		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
 		if select_item == YES_OR_NO[0]:
 			subprocess.run(['sh', '-c','cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm'])
+			if GNOME == True:
+				gnome_extras()
 			FINISH = True
 			YAY = True
 			return True
 		else:
 			FINISH = True
 			return False
+			
+def gnome_extras():
+	subprocess.run(['sh', '-c','yay -Sy --noconfirm --needed raw-thumbnailer gnome-shell-extension-arch-update'])
 
 def apps_misc(term, position):
 	global PACKAGES_OPTIONS
