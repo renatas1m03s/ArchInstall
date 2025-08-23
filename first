@@ -399,6 +399,7 @@ def disk_setup(term, position):
 	WIPEDISK = DUALBOOT = CUSTOMDISK = False
 	select_item = '0'
 	select_items = list(('0'))
+	DEFINED_SYSTEMDISK = False
 	
 	DISK_OPTIONS = set_var_lang('DISK_OPTIONS')
 	
