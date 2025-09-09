@@ -13,3 +13,5 @@ nmcli con mod $CONECTION1_NEWNAME ipv4.gateway 192.168.15.1
 nmcli con mod $CONECTION1_NEWNAME ipv4.dns "192.168.15.3 192.168.15.253"
 nmcli con mod $CONECTION1_NEWNAME ipv4.method manual
 nmcli con down $CONECTION1_NEWNAME && nmcli con up $CONECTION1_NEWNAME
+
+sed -i 's/#Port 22/Port 3389/g' /etc/ssh/sshd_config
