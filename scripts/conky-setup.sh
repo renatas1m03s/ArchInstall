@@ -4,18 +4,18 @@
 
 # sudo chmod +x /usr/bin/fast
 
-# sudo modprobe nct6775
+yay -Sy --noconfirm fast-bin
 
-# echo nct6775 | sudo tee /etc/modules-load.d/nct6775.conf
+sudo modprobe nct6775
+
+echo nct6775 | sudo tee /etc/modules-load.d/nct6775.conf
 
 sudo sensors-detect --auto
 
 # ssh-keygen -t rsa
 # cat ~/.ssh/id_rsa.pub | ssh -p 3389 renata@192.168.15.3 'cat >> .ssh/authorized_keys'
 
-sudo crontab -l -u renata | cat - ../assets/crontab.txt | sudo crontab -u renata -
-
-crontab -l
+sudo crontab -l -u renata | cat - ../assets/crontab.txt | sudo crontab -u renata - && crontab -l
 
 sh ../assets/Conky/install-conky.sh
 

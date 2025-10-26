@@ -684,8 +684,8 @@ def set_fish_functions():
 	pass 
 
 def set_plymouth():
-	PLYTMOUTH_THEME_PATH = '/mnt/usr/share/plymouth/themes/PoweredByArch'
-	PLYTMOUTH_THEME_FILES = 'assets/PoweredByArch/*'
+	PLYTMOUTH_THEME_PATH = '/mnt/usr/share/plymouth/themes/PoweredByArchV2'
+	PLYTMOUTH_THEME_FILES = 'assets/PoweredByArchV2/*'
 	PLYTMOUTH_CONF = 'assets/plymouthd.conf'
 	PLYTMOUTH_CONF_PATH = '/mnt/etc/plymouth'
 	

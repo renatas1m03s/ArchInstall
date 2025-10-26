@@ -1,0 +1,17 @@
+# /dev/nvme2n1p1: /mnt/Data
+UUID=a3eb3cce-a34f-4141-b604-9aa293cb40c5       /mnt/Data       ext4            rw,relatime     0 0
+
+# /dev/sdc1: /mnt/Misc
+UUID=f3cc9c2c-9fab-4120-a810-8268ef60a39d       /mnt/Misc       ext4            rw,relatime     0 0
+
+# /dev/nvme1n1p1: /mnt/SteamGames1
+UUID=e7c370eb-6086-41a1-a98d-920cc018072a       /mnt/SteamGames1        ext4            rw,relatime     0 0
+
+# /dev/sda1: /mnt/RetroGames
+UUID=19ae4e13-1d6d-4833-965b-a20197aebf27       /mnt/RetroGames         ext4            rw,relatime     0 0
+
+# /dev/sdb1: /mnt/Multimedia
+UUID=091b51db-1df4-4764-b256-36529bf4881e       /mnt/Multimedia         ext4            rw,relatime     0 0
+
+# /dev/sdd1: /mnt/Backup
+UUID=e5baf492-8653-415f-b0c4-bd88a81d61bd       /mnt/Backup             ext4            rw,relatime     0 0

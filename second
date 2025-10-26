@@ -115,7 +115,7 @@ def set_gnome():
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface icon-theme Tela-ubuntu-dark'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface accent-color orange'])
 	subprocess.run(['sh', '-c','gsettings set org.gnome.mutter dynamic-workspaces false'])
-	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences num-workspaces 5'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences num-workspaces 3'])
 
 def gnome_kde():
 	global GNOME

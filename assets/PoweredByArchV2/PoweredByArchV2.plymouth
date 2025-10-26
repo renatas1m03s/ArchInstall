@@ -1,40 +1,39 @@
 [Plymouth Theme]
-Name=PoweredByArch
-Description=Based on a theme designed by jimmac that features a simple spinner. This one has liquid progress bar instead.
+Name[es]=PoweredByArchV2
+Name[pt_BR]=PoweredByArchV2
+Name[pt]=PoweredByArchV2
+Name=PoweredByArchV2
+Description=A theme spinner based originaly designed by jimmac.
 ModuleName=two-step
 
 [two-step]
 Font=Cantarell 12
 TitleFont=Cantarell Light 30
-ImageDir=/usr/share/plymouth/themes/PoweredByArch
+ImageDir=/usr/share/plymouth/themes/PoweredByArchV2/
 DialogHorizontalAlignment=.5
-DialogVerticalAlignment=.96
+DialogVerticalAlignment=.382
 TitleHorizontalAlignment=.5
-TitleVerticalAlignment=.96
+TitleVerticalAlignment=.382
 HorizontalAlignment=.5
-VerticalAlignment=.85
-WatermarkHorizontalAlignment=.5
-WatermarkVerticalAlignment=.88
+VerticalAlignment=.7
+WatermarkHorizontalAlignment=.495
+WatermarkVerticalAlignment=.96
 Transition=none
 TransitionDuration=0.0
 BackgroundStartColor=0x000000
 BackgroundEndColor=0x000000
-# ProgressBarBackgroundColor=0x606060
-# ProgressBarForegroundColor=0xffffff
-DialogClearsFirmwareBackground=false
+ProgressBarBackgroundColor=0x606060
+ProgressBarForegroundColor=0xffffff
 MessageBelowAnimation=true
 
 [boot-up]
 UseEndAnimation=false
-UseFirmwareBackground=true
 
 [shutdown]
 UseEndAnimation=false
-UseFirmwareBackground=true
 
 [reboot]
 UseEndAnimation=false
-UseFirmwareBackground=true
 
 [updates]
 SuppressMessages=true
@@ -54,6 +53,12 @@ SubTitle=Do not turn off your computer
 SuppressMessages=true
 ProgressBarShowPercentComplete=true
 UseProgressBar=true
-UseFirmwareBackground=false
 Title=Upgrading Firmware...
+SubTitle=Do not turn off your computer
+
+[system-reset]
+SuppressMessages=true
+ProgressBarShowPercentComplete=true
+UseProgressBar=true
+Title=Resetting System...
 SubTitle=Do not turn off your computer
