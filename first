@@ -469,11 +469,10 @@ def disk_setup(term, position):
 				position[0] = position[0] + 1
 			position[0] = position[0] + 1
 			if EFI and ROOT: 
-				print(text_justify_left(term, position,'EFI and Root founded'))
 				DEFINED_SYSTEMDISK = True
 			else:
 				print(text_justify_left(term, position,'Need a EFI Vfat and a ROOT ext4 partitions to proceed!!'))
-			key = term.inkey()
+				key = term.inkey()
 	if select_items =='0' or DEFINED_SYSTEMDISK == False:
 		return False
 	else:
@@ -1015,7 +1014,7 @@ def prepare_chroot():
 	
 	packages = read_files(file_name)
 	if packages != '0':
-		run_reflector() # Update mirrors
+		# run_reflector() # Update mirrors
 		PACSTRAP[0] = 'pacstrap /mnt '+ packages
 		PACSTRAP.append('genfstab -U -p /mnt >> /mnt/etc/fstab')
 		return PACSTRAP
