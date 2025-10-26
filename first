@@ -710,9 +710,10 @@ def set_plymouth():
 
 	result1=subprocess.run(['sh', '-c','cp -Rv ' + PATH + PLYTMOUTH_THEME_FILES + ' ' + PLYTMOUTH_THEME_PATH + '/'])
 	result2=subprocess.run(['sh', '-c','cp -v ' + PATH + PLYTMOUTH_CONF + ' ' + PLYTMOUTH_CONF_PATH + '/'])
-	result3=subprocess.run(['sh', '-c','arch-chroot /mnt mkinitcpio -P'])
+	result3=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/setinitram.sh'])
+	result4=subprocess.run(['sh', '-c','arch-chroot /mnt mkinitcpio -P'])
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result2)+'\n')
+		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result3)+'\n'+str(result4)+'\n')
 	pass 
 
 def set_sddm_theme():
