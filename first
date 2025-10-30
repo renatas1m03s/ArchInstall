@@ -613,7 +613,7 @@ def set_msfonts():
 	
 	try:
 		os.makedirs(MSFONTS_PATH)
-		print(f"Nested directories '{MSFONTS_PATH}' created successfully.")
+		
 	except FileExistsError:
 		print(f"One or more directories in '{MSFONTS_PATH}' already exist.")
 	except PermissionError:
@@ -923,11 +923,10 @@ def popen_progress(term, position, text, cmd):
 		running=str(result.poll())
 		if running != 'None':
 			break
-		index = show_progress(term, position, 'Configuring disks', index)
+		index = show_progress(term, position, text, index)
 		time.sleep(.15)	
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.poll()) + '\n' + str(result)+'\n')
-	
 
 def prepare_disk(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = '0'
@@ -955,11 +954,32 @@ def prepare_disk(term):
 		mkdir_efi             = 'mkdir -p /mnt/boot/efi'
 		mount_efi             = 'mount ' + SYSTEMDISK + efi_number + ' /mnt/boot/efi'
 
-		for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
+		for i, command_to_run in enumerate([create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]):
 			if command_to_run != '0':
+				match i:
+					case 0:
+						text = 'Creating GPT label'
+					case 1:
+						text = 'Creating EFI partition'
+					case 2:
+						text = 'Creating root partition'
+					case 3:
+						text = 'Formating EFI'
+					case 4:
+						text = 'Formating root partition'
+					case 4:
+						text = 'Mounting root partition'
+					case 5:
+						text = 'Creating EFI dir'
+					case 6:
+						text = 'Mounting EFI partition'
+					case 7:
+						text = 'Creating swapfile'
+					case 8:
+						text = 'Enabling swapfile'
 				cmd = ['sh','-c',command_to_run]
 				position = resolve_uw_display(term) 	
-				popen_progress(term, position, 'Configuring disks', cmd)
+				popen_progress(term, position, text, cmd)
 				
 	if DUALBOOT:
 		position = resolve_uw_display(term)
@@ -984,11 +1004,24 @@ def prepare_disk(term):
 		mkdir_efi = 'mkdir -p /mnt/boot/efi'
 		mount_efi = 'mount ' + str(EFI_id) + ' /mnt/boot/efi'
 		
-		for command_to_run in [format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
+		for i, command_to_run in enumerate([format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]):
 			if command_to_run != '0':
+				match i:
+					case 0:
+						text = 'Formating root'
+					case 1:
+						text = 'Mounting root'
+					case 2:
+						text = 'Creating EFI dir'
+					case 3:
+						text = 'Mounting EFI'
+					case 4:
+						text = 'Creating swapfile'
+					case 4:
+						text = 'Enabling swapfile'
 				position = resolve_uw_display(term)
 				cmd = ['sh','-c',command_to_run]
-				popen_progress(term, position, 'Configuring disks', cmd)
+				popen_progress(term, position, text, cmd)
  
 	x = time.localtime()
 	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
@@ -1016,12 +1049,12 @@ def read_files(file_name):
 		return packages
 
 def run_reflector():
-	REFLECTOR = 'reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
+	cmd = 'reflector --latest 10 --sort rate --save /etc/pacman.d/mirrorlist'
 	REFLECTOR_TEXT = set_var_lang('REFLECTOR')
 	print(REFLECTOR_TEXT.replace('#','\n'))
-	result = subprocess.run(['sh','-c', REFLECTOR])
+	result = subprocess.run(['sh','-c', cmd])
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result)+'\n')
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 	pass 
 
 def prepare_chroot():
@@ -1036,13 +1069,15 @@ def prepare_chroot():
 		return PACSTRAP
 
 def set_pacman(): # Execute before arch-chroot - Enable multilib, parallel downloads and fancy apearence on pacman 
-	result = subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	cmd = ['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh']
+	result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result)+'\n')
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 	pass
 	
 def chroot_packages(term):
 	PACKAGES_FILE_PATH = PATH + 'misc/first-packages.dat'
+	PACKAGES_SCRIPT_PATH = '/mnt/first-packages.sh'
 	PACKAGES = ''
 	ALL_PACKAGES = {'BASE': True, 'LTS':LTS, 'ZEN':ZEN, 'MESA':MESA, 'NVIDIA':NVIDIA, 'GNOME_BASIC':GNOME_BASIC,
 	                'PLASMA_BASIC':PLASMA_BASIC, 'CHROMIUM':CHROMIUM, 'FIREFOX':FIREFOX, 'THUNDERBIRD':THUNDERBIRD,
@@ -1058,28 +1093,31 @@ def chroot_packages(term):
 					if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1:
 						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
 						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
+	cmd = ['sh','-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist']
+	result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 
-	result1 = subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-	cmd = ['arch-chroot','/mnt','pacman','-Sy','--noconfirm','--needed']
+	cmd = 'pacman -Sy --noconfirm --needed '
 	PACKAGES = PACKAGES.split(' ')
 	for idx, ITEM in enumerate(PACKAGES):
-		cmd.append(ITEM)
-	print(cmd)
-	key = term.inkey()
-	result2 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	index = 0
-	running = "None"
-	position = resolve_uw_display(term)
-	while running == 'None':
-		running=str(result2.poll())
-		if running != 'None':
-			break
-		index = show_progress(term, position, 'Installing packages', index)
-		time.sleep(.15)		
-	
+		cmd = cmd + ' ' + ITEM
+	with open(PACKAGES_SCRIPT_PATH,'a+') as first_packages_script:
+		first_packages_script.write('#!/bin/bash\n\n' + cmd)
+
+	cmd = ['sh','-c','chmod +x ' + PACKAGES_SCRIPT_PATH]
+	result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result1)+'\n' + str(result2)+'\n')
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
+	cmd = ['arch-chroot','/mnt','/usr/sbin/bash','-c','/first-packages.sh']
+	position = resolve_uw_display(term, 2)
+	popen_progress(term, position, 'Instaling packages', cmd)
+	
+	cmd = ['sh','-c','rm ' + PACKAGES_SCRIPT_PATH ]
+	result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
+	
 	pass 
 
 def set_regional_settings():
@@ -1289,32 +1327,13 @@ def main():
 							for idx, command_to_run in enumerate(PACSTRAP):
 								if idx == 0:
 									cmd = ['sh','-c',command_to_run]
-									result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-									index = 0 
-									position = resolve_uw_display(term)
-									running = 'None'
-									while running == 'None':
-										running=str(result.poll())
-										if running != 'None':
-											break
-										index = show_progress(term, position, 'Executing pacstrap', index)
-										time.sleep(.15)										
-									with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-										logfile.write(str(result)+'\n')
+									position = resolve_uw_display(term,1)
+									popen_progress(term, position, 'Executing pacstrap',cmd)
 								else:
 									cmd = ['sh','-c',command_to_run]
-									result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-									index = 0 
 									position = resolve_uw_display(term)
-									running = 'None'
-									while running == 'None':
-										running=str(result.poll())
-										if running != 'None':
-											break
-										index = show_progress(term, position, 'Executing genfstab', index)
-										time.sleep(.15)										
-									with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-										logfile.write(str(result)+'\n')
+									popen_progress(term, position, 'Executing genfstab',cmd)
+
 							step_title = text_justify_center(term, permanent_position, CASE_5[3])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pacman()
