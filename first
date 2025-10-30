@@ -914,10 +914,24 @@ def confirm_options(term, position):
 			logfile.write(WRITE_LOG_LINE+'\n')
 	return True
 
+def popen_progress(term, position, text, cmd):
+	index = 0 
+	running = "None"
+	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+	while running == 'None':
+		running=str(result.poll())
+		if running != 'None':
+			break
+		index = show_progress(term, position, 'Configuring disks', index)
+		time.sleep(.15)	
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.poll()) + '\n' + str(result)+'\n')
+	
+
 def prepare_disk(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = '0'
 	mount_root = mount_efi = mkdir_efi = mkswapfile = swapon = '0'
-	running = 'None'
 
 	term.move_yx(4,0)
 	term.clear_eos()
@@ -944,17 +958,9 @@ def prepare_disk(term):
 		for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
 			if command_to_run != '0':
 				cmd = ['sh','-c',command_to_run]
-				result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				index = 0 
-				position = resolve_uw_display(term)
-				while running == 'None':
-					running=str(result.poll())
-					if running != 'None':
-						break
-					index = show_progress(term, position, 'Configuring disks', index)
-					time.sleep(.15)	
-				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-					logfile.write(str(result)+'\n')
+				position = resolve_uw_display(term) 	
+				popen_progress(term, position, 'Configuring disks', cmd)
+				
 	if DUALBOOT:
 		position = resolve_uw_display(term)
 		i = set_dualboot(term, position)	
@@ -962,17 +968,8 @@ def prepare_disk(term):
 		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart ROOT ext4 ' + freespace_itens[i][0] + ' ' + freespace_itens[i][1]
 		cmd = ['sh','-c',create_root_partition]
 		result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		index = 0 
-		position = resolve_uw_display(term)
-		while running == 'None':
-			running=str(result.poll())
-			if running != 'None':
-				break
-			index = show_progress(term, position, 'Configuring disks', index)
-			time.sleep(.15)
-		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-			logfile.write(str(result)+'\n')
-				
+		popen_progress(term, position, 'Configuring disks', cmd)
+					
 		device_id_command = subprocess.run(['sh','-c','blkid | grep ' + SYSTEMDISK + ' | grep ROOT | awk -F\':\' \'{print $1}\''], stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 		device_id = device_id_command.stdout.decode('utf-8').splitlines()
 		device_id = device_id[0]
@@ -989,24 +986,14 @@ def prepare_disk(term):
 		
 		for command_to_run in [format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
 			if command_to_run != '0':
-				cmd = ['sh','-c',command_to_run]
-				result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-				index = 0 
 				position = resolve_uw_display(term)
-				while running == 'None':
-					running=str(result.poll())
-					if running != 'None':
-						break
-					index = show_progress(term, position, 'Configuring disks', index)
-					time.sleep(.15)	
-				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-					logfile.write(str(result)+'\n')
+				cmd = ['sh','-c',command_to_run]
+				popen_progress(term, position, 'Configuring disks', cmd)
  
 	x = time.localtime()
 	sufix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
 
 	if os.path.isdir('/mnt/home/'+USERNAME): # Checks the existence of user home folder and rename it
-		print(os.path.isdir('/mnt/home/'+USERNAME), '/mnt/home/'+USERNAME)
 		result = subprocess.run(['sh','-c','mv -v /mnt/home/' + USERNAME + ' /mnt/home/'+USERNAME+'.'+sufix], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 			logfile.write(str(result)+'\n')
