@@ -21,7 +21,7 @@ echo -e "\n############ Installing dependencies ############\n"
 pacman -Sy --noconfirm archlinux-keyring
 pacman-key --init
 pacman-key --populate archlinux
-pacman -Sy --noconfirm git python-blessed p7zip parted dosfstools
+pacman -Sy --noconfirm --needed git python-blessed p7zip parted dosfstools
 
 echo -e "\n############ Downloading setup wizard files ############\n"
 
