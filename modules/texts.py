@@ -51,3 +51,37 @@ def resolve_uw_display(term, inc_y=None, inc_x=None): # Increments of y and x ar
 		offset[1]=(offset[1]+((term.width-PRINTABLE_AREA)//2))
 	
 	return offset
+	
+def show_progress(term, position, text, index):
+
+	if index >= 8:
+		index=0
+
+	text=text_justify_left(term, position, text)
+
+	match index:
+		case 0:
+			print(text+ ' |' +term.clear_eol())
+			index+=1
+		case 1:
+			print(text+ ' /' +term.clear_eol())
+			index+=1
+		case 2:
+			print(text+ ' -' +term.clear_eol())
+			index+=1
+		case 3:
+			print(text+ ' \\' +term.clear_eol())
+			index+=1
+		case 4:
+			print(text+ ' |' +term.clear_eol())
+			index+=1
+		case 5:
+			print(text+ ' /' +term.clear_eol())
+			index+=1
+		case 6:
+			print(text+ ' -' +term.clear_eol())
+			index+=1
+		case 7:
+			print(text+ ' \\' +term.clear_eol())
+			index+=1
+	return index	

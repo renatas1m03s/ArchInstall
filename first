@@ -899,11 +899,11 @@ def confirm_options(term, position):
 	try:
 		os.makedirs(LOG_FILE_PATH)
 	except FileExistsError:
-		print(f"One or more directories in '{LOG_FILE_PATH}' already exist.")
+		print("")
 	except PermissionError:
-		print(f"Permission denied: Unable to create '{LOG_FILE_PATH}'.")
+		print("")
 	except Exception as e:
-		print(f"An error occurred: {e}")
+		print("")
 
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		for i,WRITE_LOG_LINE in enumerate(USER_INFO):
@@ -917,6 +917,7 @@ def confirm_options(term, position):
 def prepare_disk(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_boot = format_root = '0'
 	mount_root = mount_efi = mkdir_efi = mkswapfile = swapon = '0'
+	running = 'None'
 
 	term.move_yx(4,0)
 	term.clear_eos()
@@ -942,7 +943,16 @@ def prepare_disk(term):
 
 		for command_to_run in [create_gpt_label, create_efi_partition, create_root_partition, format_efi, format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
 			if command_to_run != '0':
-				result = subprocess.run(['sh','-c', command_to_run])
+				cmd = ['sh','-c',command_to_run]
+				result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				index = 0 
+				position = resolve_uw_display(term)
+				while running == 'None':
+					running=str(result.poll())
+					if running != 'None':
+						break
+					index = show_progress(term, position, 'Configuring disks', index)
+					time.sleep(.15)	
 				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 					logfile.write(str(result)+'\n')
 	if DUALBOOT:
@@ -950,7 +960,16 @@ def prepare_disk(term):
 		i = set_dualboot(term, position)	
 		
 		create_root_partition = 'parted -s --align optimal ' + SYSTEMDISK + ' mkpart ROOT ext4 ' + freespace_itens[i][0] + ' ' + freespace_itens[i][1]
-		result = subprocess.run(['sh','-c', create_root_partition])
+		cmd = ['sh','-c',create_root_partition]
+		result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		index = 0 
+		position = resolve_uw_display(term)
+		while running == 'None':
+			running=str(result.poll())
+			if running != 'None':
+				break
+			index = show_progress(term, position, 'Configuring disks', index)
+			time.sleep(.15)
 		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 			logfile.write(str(result)+'\n')
 				
@@ -970,7 +989,16 @@ def prepare_disk(term):
 		
 		for command_to_run in [format_root, mount_root, mkdir_efi, mount_efi, mkswapfile, swapon]:
 			if command_to_run != '0':
-				result = subprocess.run(['sh','-c', command_to_run])
+				cmd = ['sh','-c',command_to_run]
+				result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				index = 0 
+				position = resolve_uw_display(term)
+				while running == 'None':
+					running=str(result.poll())
+					if running != 'None':
+						break
+					index = show_progress(term, position, 'Configuring disks', index)
+					time.sleep(.15)	
 				with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 					logfile.write(str(result)+'\n')
  
@@ -979,7 +1007,7 @@ def prepare_disk(term):
 
 	if os.path.isdir('/mnt/home/'+USERNAME): # Checks the existence of user home folder and rename it
 		print(os.path.isdir('/mnt/home/'+USERNAME), '/mnt/home/'+USERNAME)
-		result = subprocess.run(['sh','-c','mv -v /mnt/home/' + USERNAME + ' /mnt/home/'+USERNAME+'.'+sufix])
+		result = subprocess.run(['sh','-c','mv -v /mnt/home/' + USERNAME + ' /mnt/home/'+USERNAME+'.'+sufix], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 			logfile.write(str(result)+'\n')
 
@@ -1021,7 +1049,7 @@ def prepare_chroot():
 		return PACSTRAP
 
 def set_pacman(): # Execute before arch-chroot - Enable multilib, parallel downloads and fancy apearence on pacman 
-	result = subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'])
+	result = subprocess.run(['sh', '-c','sh ' + PATH + 'scripts/pacman-conf.sh'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result)+'\n')
 	pass
@@ -1044,9 +1072,25 @@ def chroot_packages(term):
 						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
 						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
 
-	result1 = subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'])
-	result2 = subprocess.run(['sh', '-c','arch-chroot /mnt pacman -Sy --noconfirm --needed ' + PACKAGES])
+	result1 = subprocess.run(['sh', '-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
+	cmd = ['arch-chroot','/mnt','pacman','-Sy','--noconfirm','--needed']
+	PACKAGES = PACKAGES.split(' ')
+	for idx, ITEM in enumerate(PACKAGES):
+		cmd.append(ITEM)
+	print(cmd)
+	key = term.inkey()
+	result2 = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	index = 0
+	running = "None"
+	position = resolve_uw_display(term)
+	while running == 'None':
+		running=str(result2.poll())
+		if running != 'None':
+			break
+		index = show_progress(term, position, 'Installing packages', index)
+		time.sleep(.15)		
+	
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result1)+'\n' + str(result2)+'\n')
 	pass 
@@ -1249,7 +1293,6 @@ def main():
 						CASE_5 = set_var_lang('CASE_5')
 						proceed_or_abort = choices_horizontal_menu(term, position, PROCEED_OR_ABORT, term.blink(term.bold(CASE_5[0])) + term.clear_eos())
 						if proceed_or_abort == PROCEED_OR_ABORT[0]:
-							
 							step_title = text_justify_center(term, permanent_position, CASE_5[1])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							prepare_disk(term)
@@ -1257,10 +1300,34 @@ def main():
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							PACSTRAP = prepare_chroot()
 							for idx, command_to_run in enumerate(PACSTRAP):
-								result=subprocess.run(['sh','-c', command_to_run]) # PACSTRAP and GENFSTAB
-								with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-									logfile.write(str(result)+'\n')
-							# set_sagittarius_fstab() # Function exclusive to Renata's desktop PC
+								if idx == 0:
+									cmd = ['sh','-c',command_to_run]
+									result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+									index = 0 
+									position = resolve_uw_display(term)
+									running = 'None'
+									while running == 'None':
+										running=str(result.poll())
+										if running != 'None':
+											break
+										index = show_progress(term, position, 'Executing pacstrap', index)
+										time.sleep(.15)										
+									with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+										logfile.write(str(result)+'\n')
+								else:
+									cmd = ['sh','-c',command_to_run]
+									result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+									index = 0 
+									position = resolve_uw_display(term)
+									running = 'None'
+									while running == 'None':
+										running=str(result.poll())
+										if running != 'None':
+											break
+										index = show_progress(term, position, 'Executing genfstab', index)
+										time.sleep(.15)										
+									with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+										logfile.write(str(result)+'\n')
 							step_title = text_justify_center(term, permanent_position, CASE_5[3])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_pacman()
