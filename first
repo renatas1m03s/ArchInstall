@@ -520,7 +520,6 @@ def user_info(term, position):
 def set_msfonts():
 	MSFONTS_PATH = '/mnt/usr/share/fonts/WindowsFonts'
 	MSFONTS_FILE = PATH + 'assets/msfonts.7z.001'
-	
 	try:
 		os.makedirs(MSFONTS_PATH)
 		
@@ -555,25 +554,6 @@ def set_telaicons():
 		logfile.write(str(result)+'\n')
 	pass 
 
-def set_alacritty():
-	ALACRITTY_PATH = '/mnt/home/' + USERNAME + '/.config/alacritty'
-	ALACRITTY_FILE = PATH + 'assets/alacritty.toml'
-	
-	if EXTRAS == True:
-		try:
-			os.makedirs(ALACRITTY_PATH)
-			print(f"Nested directories '{ALACRITTY_PATH}' created successfully.")
-		except FileExistsError:
-			print(f"One or more directories in '{ALACRITTY_PATH}' already exist.")
-		except PermissionError:
-			print(f"Permission denied: Unable to create '{ALACRITTY_PATH}'.")
-		except Exception as e:
-			print(f"An error occurred: {e}")
-		result=subprocess.run(['sh', '-c','cp -v ' + ALACRITTY_FILE + ' ' + ALACRITTY_PATH + '/'])
-		with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-			logfile.write(str(result)+'\n')
-	pass
-	
 def set_fish_functions():
 	FISH_FUNCTIONS_PATH = '/mnt/home/' + USERNAME + '/.config/fish/functions'
 	FISH_FUNCTIONS_FILES = 'assets/functions/*'
@@ -1103,7 +1083,6 @@ def set_second_autostart():
 				  'Terminal=false\n',
 				  'Type=Application\n',
 				  'X-KDE-AutostartScript=true\n' ]
-
 	try:
 		os.makedirs(AUTOSTART_PATH)
 		print(f"Nested directories '{AUTOSTART_PATH}' created successfully.")
@@ -1114,12 +1093,12 @@ def set_second_autostart():
 	except Exception as e:
 		print(f"An error occurred: {e}")
 	with open(AUTOSTART_FILE, 'a') as FILE:
-		if NO_GNOME_CUSTOMIZATIONS == True:
-			for i, line in enumerate(SECOND_DESKTOP2):
-				FILE.writelines(line)
-		else:
-			for i, line in enumerate(SECOND_DESKTOP1):
-				FILE.writelines(line)
+#		if NO_GNOME_CUSTOMIZATIONS == True:
+#			for i, line in enumerate(SECOND_DESKTOP2):
+#				FILE.writelines(line)
+#		else:
+		for i, line in enumerate(SECOND_DESKTOP1):
+			FILE.writelines(line)
 	pass 
  
 def save_log_file():
@@ -1243,7 +1222,6 @@ def main():
 							step_title = text_justify_center(term, permanent_position, CASE_5[9])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_daemons(selected_items)
-							set_alacritty()
 							set_msfonts()
 							set_telaicons()
 							set_plymouth()
