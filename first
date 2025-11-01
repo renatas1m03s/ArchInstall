@@ -860,15 +860,15 @@ def prepare_disk(term):
 						text = 'Formating EFI'
 					case 4:
 						text = 'Formating root partition'
-					case 4:
-						text = 'Mounting root partition'
 					case 5:
-						text = 'Creating EFI dir'
+						text = 'Mounting root partition'
 					case 6:
-						text = 'Mounting EFI partition'
+						text = 'Creating EFI dir'
 					case 7:
-						text = 'Creating swapfile'
+						text = 'Mounting EFI partition'
 					case 8:
+						text = 'Creating swapfile'
+					case 9:
 						text = 'Enabling swapfile'
 				cmd = ['sh','-c',command_to_run]
 				position = resolve_uw_display(term) 	
@@ -1062,7 +1062,10 @@ def set_bootloader():
 
 	pass
 
-def set_daemons():
+def set_daemons(selected_items):
+	GNOME = 'GNOME Basic - Minimal options - file manager, terminal, tweaks...'
+	KDE =  'Plasma/KDE Basic -  Minimal options - file manager, terminal...'
+	
 	STRING1 = '#AddressFamily any'
 	STRING2 = 'AddressFamily inet'
 	result1=subprocess.run(['sh', '-c','sed -i \'s/' + STRING1 + '/' + STRING2 + '/g\' /mnt/etc/ssh/sshd_config'])
@@ -1074,9 +1077,9 @@ def set_daemons():
 	result7=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned'])
 	result8=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable tuned-ppd'])
 	
-	if GNOME_BASIC == True:
+	if GNOME in selected_items:
 		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable gdm'])
-	if PLASMA_BASIC == True:
+	if KDE in selected_items:
 		result9=subprocess.run(['sh', '-c','arch-chroot /mnt systemctl enable sddm'])
 		set_sddm_theme()
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
@@ -1239,7 +1242,7 @@ def main():
 							set_bootloader()
 							step_title = text_justify_center(term, permanent_position, CASE_5[9])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-							set_daemons()
+							set_daemons(selected_items)
 							set_alacritty()
 							set_msfonts()
 							set_telaicons()
