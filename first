@@ -994,14 +994,15 @@ def chroot_packages(term, selected_items):
 			else:
 				PACK.append(PACKAGES[y+ITEM])
 		cmd = cmd_base + PACK
-		popen_progress(term, position, 'Instaling packages' + str(i), cmd)
+		popen_progress(term, position, 'Instaling packages ' + str(i), cmd, 900)
 		ITEM = y + (ITEM + 1)
 		i+=1
-	
+		time.sleep(20)
+		
 	cmd = cmd_base
 	for x in range (ITEM, ITEM + REMAINDER):
 		cmd.append(PACKAGES[x])
-	popen_progress(term, position, 'Instaling packages' + str(LOOP + 1), cmd)
+	popen_progress(term, position, 'Instaling packages ' + str(LOOP + 1), cmd)
 	
 	pass 
 
