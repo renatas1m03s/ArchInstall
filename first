@@ -695,7 +695,9 @@ def system_options(term, position):
 	
 	choices_set_options_limit(term, 30)
 	
-	while !finish:
+	SYSTEM_OPTIONS.remove('BASE')
+	
+	while finish == False:
 		selected_items=choices_multiple_options(term, position, SYSTEM_OPTIONS, 'CHOOSE_COMPONENTS', DEFAULT_OPTIONS)
 		if selected_items[0] != '0':
 			if ((MESA in selected_items) and (NVIDIA in selected_items)) or ((GNOME in selected_items) and (KDE in selected_items)):
@@ -741,10 +743,10 @@ def disk_definition(term):
 
 	return disk_commands
 
-def packages_definition(selected_items):
+def packages_definition(term, selected_items):
 	SELECTED_PACKAGES = list((term.bold(set_var_lang('PACKAGES_INSTALLED')),' '))
 
-	for i in range(0,len(selected_items)-1):
+	for i in range(0,len(selected_items)):
 		SELECTED_PACKAGES.append(' - ' + selected_items[i] + '\n')
 		
 	return SELECTED_PACKAGES
@@ -771,7 +773,7 @@ def confirm_options(term, position, selected_items):
 		       USER_INFO_TEXT[7] + term.bold(KEYBOARD_CONFIG)]
 	
 	DISK_COMMANDS = disk_definition(term)
-	SELECTED_PACKAGES = packages_definition(term)
+	SELECTED_PACKAGES = packages_definition(term, selected_items)
 	
 	position = resolve_uw_display(term,1)
 	text_print_list(term, position, USER_INFO)
@@ -975,8 +977,9 @@ def chroot_packages(term, selected_items):
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 
 	cmd_base = ['arch-chroot', '/mnt', 'pacman', '-Sy', '--noconfirm', '--needed']
-		
-
+			
+	selected_items.append('BASE')
+	
 	PACKAGES = read_options(selected_items)
 	REMAINDER = len(PACKAGES) % 8
 	LOOP = (len(PACKAGES) - REMAINDER) / 8
@@ -989,8 +992,8 @@ def chroot_packages(term, selected_items):
 		for y in range (0,8):
 			if y == 0:
 				PACK[0] = PACKAGES[y+ITEM]
-		else:
-			PACK.append(PACKAGES[y+ITEM])
+			else:
+				PACK.append(PACKAGES[y+ITEM])
 		cmd = cmd_base + PACK
 		popen_progress(term, position, 'Instaling packages' + str(LOOP), cmd)
 		ITEM = y + (ITEM + 1)
@@ -1180,8 +1183,8 @@ def main():
 						position = resolve_uw_display(term,-1)
 						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_2'))
 						print(term.bold(term.gray_on_blue(step_title)))
-						select_items = system_options(term, position)
-						if select_items[0]!='0':
+						selected_items = system_options(term, position)
+						if selected_items[0]!='0':
 							STEP+=1
 						else:
 							STEP-=1
@@ -1191,7 +1194,7 @@ def main():
 						permanent_position=position
 						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_3'))
 						print(term.bold(term.gray_on_blue(step_title)))
-						if confirm_options(term, position, select_items):
+						if confirm_options(term, position, selected_items):
 							STEP+=1
 						else:
 							STEP-=1
@@ -1221,7 +1224,7 @@ def main():
 							set_pacman()
 							step_title = text_justify_center(term, permanent_position, CASE_5[4])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
-							chroot_packages(term)
+							chroot_packages(term, selected_items)
 							step_title = text_justify_center(term, permanent_position, CASE_5[5])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_hosts_files()
