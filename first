@@ -804,16 +804,19 @@ def confirm_options(term, position, selected_items):
 
 def popen_progress(term, position, text, cmd):
 	index = 0 
-	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=240)
-
+	TIMER = 0
+	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	while True:
-		if result.poll() is not None:
+		if TIMER >= 960:
+			result.terminate()
+		if (result.poll() is not None):
 			break
 		index = show_progress(term, position, text, index)
-		time.sleep(.15)	
+		time.sleep(.25)
+		TIMER +=1
 
 	text=text_justify_left(term, position, text)
-	print(text + term.clear_eol()
+	print(text + term.clear_eol())
 
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.poll()) + '\n' + str(result)+'\n')
