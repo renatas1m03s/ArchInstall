@@ -54,34 +54,56 @@ def resolve_uw_display(term, inc_y=None, inc_x=None): # Increments of y and x ar
 	
 def show_progress(term, position, text, index):
 
-	if index >= 8:
+	if index >= 15:
 		index=0
 
 	text=text_justify_left(term, position, text)
 
 	match index:
 		case 0:
-			print(text+ ' |' +term.clear_eol())
+			print(text+ ' *' +term.clear_eol())
 			index+=1
 		case 1:
-			print(text+ ' /' +term.clear_eol())
+			print(text+ ' **' +term.clear_eol())
 			index+=1
 		case 2:
-			print(text+ ' -' +term.clear_eol())
+			print(text+ ' ***' +term.clear_eol())
 			index+=1
 		case 3:
-			print(text+ ' \\' +term.clear_eol())
+			print(text+ ' ****' +term.clear_eol())
 			index+=1
 		case 4:
-			print(text+ ' |' +term.clear_eol())
+			print(text+ ' *****' +term.clear_eol())
 			index+=1
 		case 5:
-			print(text+ ' /' +term.clear_eol())
+			print(text+ ' ******' +term.clear_eol())
 			index+=1
 		case 6:
-			print(text+ ' -' +term.clear_eol())
+			print(text+ ' *******' +term.clear_eol())
 			index+=1
 		case 7:
-			print(text+ ' \\' +term.clear_eol())
+			print(text+ ' ********' +term.clear_eol())
 			index+=1
+		case 8:
+			print(text+ ' *********' +term.clear_eol())
+			index+=1
+		case 9:
+			print(text+ ' **********' +term.clear_eol())
+			index+=1
+		case 10:
+			print(text+ ' ***********' +term.clear_eol())
+			index+=1
+		case 11:
+			print(text+ ' ************' +term.clear_eol())
+			index+=1
+		case 12:
+			print(text+ ' *************' +term.clear_eol())
+			index+=1
+		case 13:
+			print(text+ ' **************' +term.clear_eol())
+			index+=1
+		case 14:
+			print(text+ ' ***************' +term.clear_eol())
+			index+=1
+
 	return index	
