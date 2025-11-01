@@ -215,7 +215,7 @@ def choices_multiple_options(term, position, menu, title = None, selected_items 
 		with term.cbreak(), term.hidden_cursor():
 			key = term.inkey()
 		if key.name == 'KEY_DOWN':
-			idx_row, idx_offset = key_down(idx_row, idx_offset, options_limit, len(menu))
+			idx_row, idx_offset = key_down(idx_row, idx_offset, options_limit, len(menu)+1)
 		if key.name == 'KEY_UP':
 			idx_row, idx_offset = key_up(idx_row, idx_offset, options_limit, len(menu))
 		if key.name == 'KEY_PGDOWN':

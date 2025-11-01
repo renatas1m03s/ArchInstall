@@ -63,7 +63,7 @@ def set_language(lang):
 	pass
 
 def initial_args(argv):
-	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM, SYSTEM_OPTION, PASSWORD0, STEP, INT_LANG
+	global USERNAME, DISPLAY_USERNAME, HOSTNAME, TIME_ZONE, KEYBOARD_CONFIG, LANG, SYSTEM,  PASSWORD0, INT_LANG
 	INT_LANG = 'en'
 	HOSTNAME = 'arch'
 
@@ -302,95 +302,6 @@ def set_dualboot(term, position):
 	
 	return i
 
-def set_custom_fstab():
-
-	MNTDATA_BOOLEAN = False
-	MNTMISC_BOOLEAN = False
-	MNTSTEAM1_BOOLEAN = False
-	MNTRETRO_BOOLEAN = False
-	MNTBACKUP_BOOLEAN = False
-	MNTMULTIMEDIA_BOOLEAN = False
-	FSTABFILE = '/mnt/etc/fstab'
-	FSTAB_EXTRA = 'assets/fstab-extra.dat'
-	
-	lsblk = subprocess.run(['sh','-c','blkid'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-	lsbblk_lines = lsblk.stdout.decode('utf-8').splitlines()
-
-	try:
-		with open(PATH+FSTAB_EXTRA) as file:
-			for line in file:
-				line_row = line.split(',')
-				if line_row[0] == 'Data':
-					MNTDATA_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Misc':
-					MNTMISC_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Steam1':
-					MNTSTEAM1_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Retro':
-					MNTRETRO_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Backup':
-					MNTBACKUP_ID = line_row[1].replace('\n','')
-				if line_row[0] == 'Multimedia':
-					MNTMULTIMEDIA_ID = line_row[1].replace('\n','')
-		for idx1, lines1 in enumerate(lsbblk_lines):
-			if lines1.find(MNTDATA_ID)!=-1:        # /mnt/Data
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTDATA_ID)!=-1:
-							MNTDATA_BOOLEAN = True
-				if MNTDATA_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Data\nUUID=' + MNTDATA_ID + '       /mnt/Data        ext4           rw,relatime     0 0\n')
-			if lines1.find(MNTMISC_ID)!=-1:        # /mnt/Misc
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTMISC_ID)!=-1:
-							MNTMISC_BOOLEAN = True
-				if MNTMISC_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Misc\nUUID=' + MNTMISC_ID + '       /mnt/Misc        ext4           rw,relatime     0 0\n')
-			if lines1.find(MNTSTEAM1_ID)!=-1:      # /mnt/SteamGames1
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTSTEAM1_ID)!=-1:
-							MNTSTEAM1_BOOLEAN = True
-				if MNTSTEAM1_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# SteamGames1\nUUID=' + MNTSTEAM1_ID + '       /mnt/SteamGames1 ext4           rw,relatime     0 0\n')
-			if lines1.find(MNTRETRO_ID)!=-1:       # /mnt/RetroGames
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTRETRO_ID)!=-1:
-							MNTRETRO_BOOLEAN = True
-				if MNTRETRO_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# RetroGames\nUUID=' + MNTRETRO_ID + '       /mnt/RetroGames  ext4           rw,relatime     0 0\n')
-			if lines1.find(MNTBACKUP_ID)!=-1:      # /mnt/Backup
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTBACKUP_ID)!=-1:
-							MNTBACKUP_BOOLEAN = True
-				if MNTBACKUP_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Backup\nUUID=' + MNTBACKUP_ID + '       /mnt/Backup      ext4           rw,relatime     0 0\n')
-			if lines1.find(MNTMULTIMEDIA_ID)!=-1:  # /mnt/Multimedia
-				with open(FSTABFILE) as FSTAB:
-					FSTAB_file = FSTAB.read()
-					for idx2, lines2 in enumerate(FSTAB_file.splitlines()):
-						if lines2.find(MNTMULTIMEDIA_ID)!=-1:
-							MNTMULTIMEDIA_BOOLEAN = True
-				if MNTMULTIMEDIA_BOOLEAN == False:
-					with open(FSTABFILE,'a') as FSTAB:
-						FSTAB.write('\n# Multimedia\nUUID=' + MNTMULTIMEDIA_ID + '       /mnt/Multimedia  ext4           rw,relatime     0 0\n')
-		return True
-	except Exception:
-		return False
-
 def disk_setup(term, position):
 	global NVME0N1, SDA, VDA, SYSTEMDISK, WIPEDISK, DUALBOOT, CUSTOMDISK
 	
@@ -422,7 +333,6 @@ def disk_setup(term, position):
 	
 	print(term.move_yx(position[0],position[1])+term.clear_eos())
 		
-#	position = resolve_uw_display(term, 1)
 	select_item = '0'	
 	if WIPEDISK or DUALBOOT:
 		if NVME0N1 or SDA or VDA:
@@ -736,64 +646,66 @@ def set_sddm_theme():
 				FILE.writelines(line)
 	pass 		
 
-def system_options(term, position, SYSTEM_OPTIONS):
-	global LTS, ZEN, MESA, NVIDIA, GNOME_BASIC, PLASMA_BASIC, CHROMIUM, FIREFOX, THUNDERBIRD, LIBREOFFICE, VLC, GEANY, CONKY, EXTRAS, NO_GNOME_CUSTOMIZATIONS
+def populate_options():
+	PACKAGES_FILE_PATH = PATH + 'misc/first-packages.dat'
+	SYSTEM_OPTIONS=['0']
+	DEFAULT_OPTIONS=['0']
 	
-	LTS = ZEN = MESA = NVIDIA = GNOME_BASIC = PLASMA_BASIC = CHROMIUM = FIREFOX = THUNDERBIRD = LIBREOFFICE = VLC = GEANY = CONKY = EXTRAS = NO_GNOME_CUSTOMIZATIONS = False
+	with open(PACKAGES_FILE_PATH) as file:
+		for ITEM_RAW in file:
+			ITEM_RAW=ITEM_RAW.replace('\n','')
+			ITEM_LINE = ITEM_RAW.split(';')
+			if SYSTEM_OPTIONS[0]=='0':
+				SYSTEM_OPTIONS[0]=ITEM_LINE[1]
+			else:
+				SYSTEM_OPTIONS.append(ITEM_LINE[1])
+			if ITEM_LINE[0]=='#':
+				if DEFAULT_OPTIONS[0]=='0':
+					DEFAULT_OPTIONS[0]=ITEM_LINE[1]
+				else:
+					DEFAULT_OPTIONS.append(ITEM_LINE[1])
+	return SYSTEM_OPTIONS, DEFAULT_OPTIONS
+	
+def read_options(selected_items):
+	PACKAGES_FILE_PATH = PATH + 'misc/first-packages.dat'
+	PACKAGES = ['0']
 
-	finish =  True
-	selected_items = list(('0'))
-	
-	position = resolve_uw_display(term,1)
+	with open(PACKAGES_FILE_PATH) as file:
+		for ITEM_RAW in file:
+			ITEM_RAW = ITEM_RAW.replace('\n','')
+			ITEM_RAW = ITEM_RAW.split(';')
+			if ITEM_RAW[1] in selected_items:
+				if PACKAGES[0] == '0':
+					PACKAGES = ITEM_RAW[2].split(' ')
+				else:
+					PACKAGES = PACKAGES + ITEM_RAW[2].split(' ')
+					
+	return PACKAGES
+
+def system_options(term, position):
+	SYSTEM_OPTIONS, DEFAULT_OPTIONS = populate_options()
+	finish = False
 	preserv_position = position
+	MESA = 'Mesa combo - For systems with GPUs/iGPUS AMD or Intel'
+	NVIDIA = 'NVidia combo - For systems with GPUs NVidia'
+	GNOME = 'GNOME Basic - Minimal options - file manager, terminal, tweaks...'
+	KDE = 'Plasma/KDE Basic -  Minimal options - file manager, terminal...'
+	MESA_NVIDIA_GNOME_KDE = 'Mesa/NVidia or Gnome/Plasma are mutual excludents. Press any key...'
+	selected_items = list(('0'))
 	
 	choices_set_options_limit(term, 30)
 	
-	DEFAULT_OPTIONS = set_var_lang('DEFAULT_OPTIONS')
-
-	while finish:
-		position = preserv_position
-		selected_items=choices_multiple_options(term, position, SYSTEM_OPTIONS, set_var_lang('CHOOSE_COMPONENTS'), DEFAULT_OPTIONS)
-		if selected_items != '0':
-			if (SYSTEM_OPTIONS[2] in selected_items and SYSTEM_OPTIONS[3] in selected_items) or (SYSTEM_OPTIONS[4] in selected_items and SYSTEM_OPTIONS[5] in selected_items):
-				print(term.move_yx(position[0]+len(SYSTEM_OPTIONS)+3, position[1]) + set_var_lang('MESA_NVIDIA'))
+	while !finish:
+		selected_items=choices_multiple_options(term, position, SYSTEM_OPTIONS, 'CHOOSE_COMPONENTS', DEFAULT_OPTIONS)
+		if selected_items[0] != '0':
+			if ((MESA in selected_items) and (NVIDIA in selected_items)) or ((GNOME in selected_items) and (KDE in selected_items)):
+				print(term.move_yx(position[0]+len(SYSTEM_OPTIONS)+3, position[1]) + MESA_NVIDIA_GNOME_KDE)
 				with term.cbreak(), term.hidden_cursor():
 					key = term.inkey()	
 			else:
-				if SYSTEM_OPTIONS[0] in selected_items:
-					LTS = True
-				if SYSTEM_OPTIONS[1] in selected_items:
-					ZEN = True
-				if SYSTEM_OPTIONS[2] in selected_items:
-					MESA = True
-				if SYSTEM_OPTIONS[3] in selected_items:
-					NVIDIA = True
-				if SYSTEM_OPTIONS[4] in selected_items:
-					GNOME_BASIC = True
-				if SYSTEM_OPTIONS[5] in selected_items:
-					PLASMA_BASIC = True
-				if SYSTEM_OPTIONS[6] in selected_items:
-					CHROMIUM = True
-				if SYSTEM_OPTIONS[7] in selected_items:
-					FIREFOX = True
-				if SYSTEM_OPTIONS[8] in selected_items:
-					THUNDERBIRD = True
-				if SYSTEM_OPTIONS[9] in selected_items:
-					LIBREOFFICE = True
-				if SYSTEM_OPTIONS[10] in selected_items:
-					VLC = True
-				if SYSTEM_OPTIONS[11] in selected_items:
-					GEANY = True
-				if SYSTEM_OPTIONS[12] in selected_items:
-					CONKY = True
-				if SYSTEM_OPTIONS[13] in selected_items:
-					EXTRAS = True
-				if SYSTEM_OPTIONS[14] in selected_items:
-					NO_GNOME_CUSTOMIZATIONS = True
-				finish =  False
-				return True
-		else:
-			return False
+				finish = True
+		position = preserv_position
+	return selected_items
 
 def disk_definition(term):
 	create_gpt_label = create_efi_partition = create_root_partition = format_efi = format_root = '0'
@@ -829,41 +741,15 @@ def disk_definition(term):
 
 	return disk_commands
 
-def packages_definition(term):
+def packages_definition(selected_items):
 	SELECTED_PACKAGES = list((term.bold(set_var_lang('PACKAGES_INSTALLED')),' '))
-	CHOSE_OPTIONS = set_var_lang('SYSTEM_OPTIONS')
 
-	if LTS == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[0])
-	if ZEN == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[1])
-	if MESA == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[2])
-	if NVIDIA == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[3])
-	if GNOME_BASIC == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[4])
-	if PLASMA_BASIC == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[5])
-	if CHROMIUM == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[6])
-	if FIREFOX == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[7])
-	if THUNDERBIRD == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[8])
-	if LIBREOFFICE == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[9])
-	if VLC == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[10])
-	if GEANY == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[11])
-	if CONKY == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[12])
-	if EXTRAS == True:
-		SELECTED_PACKAGES.append(' - ' + CHOSE_OPTIONS[13])
+	for i in range(0,len(selected_items)-1):
+		SELECTED_PACKAGES.append(' - ' + selected_items[i] + '\n')
+		
 	return SELECTED_PACKAGES
 
-def confirm_options(term, position):
+def confirm_options(term, position, selected_items):
 	
 	x = time.localtime()
 	prefix = str(x.tm_year)+'.'+str(x.tm_mon)+'.'+str(x.tm_mday)+'.'+str(x.tm_hour)+str(x.tm_min)
@@ -1081,27 +967,8 @@ def set_pacman(): # Execute before arch-chroot - Enable multilib, parallel downl
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 	pass
 	
-def chroot_packages(term):
-	PACKAGES_FILE_PATH = PATH + 'misc/first-packages.dat'
-	PACKAGES_SCRIPT_PATH = '/mnt/first-packages.sh'
-	ALL_PACKAGES = {'BASE': True, 'LTS':LTS, 'ZEN':ZEN, 'MESA':MESA, 'NVIDIA':NVIDIA, 'GNOME_BASIC':GNOME_BASIC,
-	                'PLASMA_BASIC':PLASMA_BASIC, 'CHROMIUM':CHROMIUM, 'FIREFOX':FIREFOX, 'THUNDERBIRD':THUNDERBIRD,
-	                'LIBREOFFICE':LIBREOFFICE, 'VLC':VLC, 'GEANY':GEANY, 'CONKY':CONKY, 'EXTRAS':EXTRAS}
-	                    
-	ALL_PACKAGES_KEYS = ALL_PACKAGES.keys()
-
-	with open(PACKAGES_FILE_PATH) as file:
-		PACKAGES_DAT = file.readlines()
-		for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT):
-			for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS):
-				if ALL_PACKAGES[ALL_PACKAGES_KEYS_LINE]:
-					if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1:
-						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
-						if 'PACKAGES' in locals(): # Testa para ver se existe a variável 
-							PACKAGES = PACKAGES + PACKAGES_SWAP[1].split(' ')
-						else:
-							PACKAGES = PACKAGES_SWAP[1].split(' ')
-							
+def chroot_packages(term, selected_items):
+			
 	cmd = ['sh','-c','cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist']
 	result = subprocess.run(cmd,stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
@@ -1109,6 +976,8 @@ def chroot_packages(term):
 
 	cmd_base = ['arch-chroot', '/mnt', 'pacman', '-Sy', '--noconfirm', '--needed']
 		
+
+	PACKAGES = read_options(selected_items)
 	REMAINDER = len(PACKAGES) % 8
 	LOOP = (len(PACKAGES) - REMAINDER) / 8
 	i = 1
@@ -1126,7 +995,6 @@ def chroot_packages(term):
 		popen_progress(term, position, 'Instaling packages' + str(LOOP), cmd)
 		ITEM = y + (ITEM + 1)
 		i+=1
-
 	
 	cmd = cmd_base
 	for x in range (ITEM, ITEM + REMAINDER):
@@ -1264,7 +1132,7 @@ def save_log_file():
 	subprocess.run(['sh','-c','cp -v ' + COMPLETE_LOG_FILE_NAME + ' ' + FINAL_LOG_FILE_PATH])
 	
 def set_owner():
-	subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chown -Rv ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
+	subprocess.run(['sh', '-c','arch-chroot /mnt /usr/bin/fish -c \'chown -Rv ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
    
 def main():
 	global STEP
@@ -1272,8 +1140,6 @@ def main():
 	position = list((0,0))
 
 	term = blessed.Terminal()
-	
-	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
 	
 	initial_args(sys.argv)
 	set_int_lang(term, INT_LANG)
@@ -1314,7 +1180,8 @@ def main():
 						position = resolve_uw_display(term,-1)
 						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_2'))
 						print(term.bold(term.gray_on_blue(step_title)))
-						if system_options(term, position, SYSTEM_OPTIONS):
+						select_items = system_options(term, position)
+						if select_items[0]!='0':
 							STEP+=1
 						else:
 							STEP-=1
@@ -1324,7 +1191,7 @@ def main():
 						permanent_position=position
 						step_title = text_justify_center(term, position, set_var_lang('MOMENT1_3'))
 						print(term.bold(term.gray_on_blue(step_title)))
-						if confirm_options(term, position):
+						if confirm_options(term, position, select_items):
 							STEP+=1
 						else:
 							STEP-=1
