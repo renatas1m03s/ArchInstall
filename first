@@ -802,12 +802,12 @@ def confirm_options(term, position, selected_items):
 			logfile.write(WRITE_LOG_LINE+'\n')
 	return True
 
-def popen_progress(term, position, text, cmd):
+def popen_progress(term, position, text, cmd, TIMER_LIMIT = 480):
 	index = 0 
 	TIMER = 0
 	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	while True:
-		if TIMER >= 960:
+		if TIMER >= (TIMER_LIMIT * 4):
 			result.terminate()
 		if (result.poll() is not None):
 			break
@@ -1212,7 +1212,7 @@ def main():
 								if idx == 0:
 									cmd = ['sh','-c',command_to_run]
 									position = resolve_uw_display(term,1)
-									popen_progress(term, position, 'Executing pacstrap',cmd)
+									popen_progress(term, position, 'Executing pacstrap',cmd, 600)
 								else:
 									cmd = ['sh','-c',command_to_run]
 									position = resolve_uw_display(term)
