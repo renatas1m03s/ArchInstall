@@ -804,7 +804,7 @@ def confirm_options(term, position, selected_items):
 
 def popen_progress(term, position, text, cmd):
 	index = 0 
-	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=240)
 
 	while True:
 		if result.poll() is not None:
@@ -812,12 +812,8 @@ def popen_progress(term, position, text, cmd):
 		index = show_progress(term, position, text, index)
 		time.sleep(.15)	
 
-#	while True:
-#		output = result.stdout.readline()
-#		if not output and result.poll() is not None:
-#			break  # Process finished and no more output
-#		if output:
-#			print(output.strip()) # Print the output line
+	text=text_justify_left(term, position, text)
+	print(text + term.clear_eol()
 
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.poll()) + '\n' + str(result)+'\n')
@@ -995,7 +991,7 @@ def chroot_packages(term, selected_items):
 			else:
 				PACK.append(PACKAGES[y+ITEM])
 		cmd = cmd_base + PACK
-		popen_progress(term, position, 'Instaling packages' + str(LOOP), cmd)
+		popen_progress(term, position, 'Instaling packages' + str(i), cmd)
 		ITEM = y + (ITEM + 1)
 		i+=1
 	
