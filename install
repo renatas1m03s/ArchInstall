@@ -1060,7 +1060,7 @@ def set_second_autostart():
 #			for i, line in enumerate(SECOND_DESKTOP2):
 #				FILE.writelines(line)
 #		else:
-		for i, line in enumerate(SECOND_DESKTOP1):
+		for i, line in enumerate(POST_INSTALL):
 			FILE.writelines(line)
 	pass 
  
