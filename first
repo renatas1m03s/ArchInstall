@@ -955,34 +955,23 @@ def chroot_packages(term, selected_items):
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 
-	cmd_base = ['arch-chroot', '/mnt', 'pacman', '-Sy', '--noconfirm', '--needed']
-			
 	selected_items.append('BASE')
 	
 	PACKAGES = read_options(selected_items)
-	REMAINDER = len(PACKAGES) % 8
-	LOOP = (len(PACKAGES) - REMAINDER) / 8
-	i = 1
-	ITEM = 0
-	position = resolve_uw_display(term,1)
-
-	while i <= LOOP:
-		PACK=['0']
-		for y in range (0,8):
-			if y == 0:
-				PACK[0] = PACKAGES[y+ITEM]
-			else:
-				PACK.append(PACKAGES[y+ITEM])
-		cmd = cmd_base + PACK
-		popen_progress(term, position, 'Instaling packages ' + str(i), cmd, 900)
-		ITEM = y + (ITEM + 1)
-		i+=1
-		time.sleep(20)
+	
+	
+	ARCH_CHROOT_STRING = 'arch-chroot /mnt pacman -Sy --noconfirm --needed '
+	for i,ITEM in enumerate(PACKAGES):
+		if i == 0:
+			ARCH_CHROOT_STRING = ARCH_CHROOT_STRING + ITEM
+		else:
+			ARCH_CHROOT_STRING = ARCH_CHROOT_STRING + " " + ITEM
 		
-	cmd = cmd_base
-	for x in range (ITEM, ITEM + REMAINDER):
-		cmd.append(PACKAGES[x])
-	popen_progress(term, position, 'Instaling packages ' + str(LOOP + 1), cmd)
+	cmd = ['sh','-c',ARCH_CHROOT_STRING]	
+	result = subprocess.run(cmd)
+	
+	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
+		logfile.write('\nCommand: ' + str(cmd) + '\nCommand return:' + str(result.returncode) + '\n' + str(result)+'\n')
 	
 	pass 
 
