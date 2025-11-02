@@ -1006,7 +1006,7 @@ def set_pass(): # Create main user and set root password
 	pass
 	
 def set_bootloader():
-	result=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/mkgrub.sh'])
+	result=subprocess.run(['sh', '-c','arch-chroot /mnt sh /home/' + USERNAME + '/ArchInstall/scripts/mkgrub.sh '+ USERNAME])
 	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
 		logfile.write(str(result)+'\n')
 
