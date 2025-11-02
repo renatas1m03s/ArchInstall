@@ -517,25 +517,6 @@ def user_info(term, position):
 				finish = True
 				return False
 
-def set_msfonts():
-	MSFONTS_PATH = '/mnt/usr/share/fonts/WindowsFonts'
-	MSFONTS_FILE = PATH + 'assets/msfonts.7z.001'
-	try:
-		os.makedirs(MSFONTS_PATH)
-		
-	except FileExistsError:
-		print(f"One or more directories in '{MSFONTS_PATH}' already exist.")
-	except PermissionError:
-		print(f"Permission denied: Unable to create '{MSFONTS_PATH}'.")
-	except Exception as e:
-		print(f"An error occurred: {e}")
-	result1 = subprocess.run(['sh', '-c','7z e ' + MSFONTS_FILE + ' -o' + MSFONTS_PATH + '/'])
-	result2 = subprocess.run(['sh', '-c','arch-chroot /mnt fish -c \'chmod 644 ' + MSFONTS_PATH + '/*\''])
-	result3 = subprocess.run(['sh', '-c','arch-chroot /mnt fc-cache –force'])
-	with open(COMPLETE_LOG_FILE_NAME,'a+') as logfile:
-		logfile.write(str(result1)+'\n'+str(result2)+'\n'+str(result3)+'\n')
-	pass 
-
 def set_telaicons():
 	TELAICONS_PATH = '/mnt/home/' + USERNAME + '/.local/share/icons'
 	TELAICONS_FILE = PATH + 'assets/telaicons.7z'
@@ -1207,7 +1188,6 @@ def main():
 							step_title = text_justify_center(term, permanent_position, CASE_5[9])
 							print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
 							set_daemons(selected_items)
-							set_msfonts()
 							set_telaicons()
 							set_plymouth()
 							set_second_autostart()
