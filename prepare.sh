@@ -29,8 +29,8 @@ git clone https://github.com/renatas1m03s/ArchInstall /root/ArchInstall
 
 echo -e "\n\n#### All ready to start ####"
 echo -e "\n"
-echo -e "- For default options, run './ArchInstall/first'"
-echo -e "- With parameters (self-explained), run './ArchInstall/first -s hostname -u username -c \"display user name\" -p password'"
-echo -e "  Ex.: ./ArchInstall/first -s archserver -u jane -c \"jane Doe\" -p P@ssw0rd'"
-echo -e "- To print help, run './ArchInstall/first -h'"
+echo -e "- For default options, run './ArchInstall/install'"
+echo -e "- With parameters (self-explained), run './ArchInstall/install -s hostname -u username -c \"display user name\" -p password'"
+echo -e "  Ex.: ./ArchInstall/install -s archserver -u jane -c \"jane Doe\" -p P@ssw0rd'"
+echo -e "- To print help, run './ArchInstall/install -h'"
 echo -e "\n"

@@ -1,0 +1,365 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+import blessed
+import subprocess
+import socket
+import getpass
+import time
+
+### My Modules
+lib_path = os.path.abspath(os.path.join(os.path.dirname(__file__), './modules')) # Define absolut path to custom modules
+
+sys.path.append(lib_path)
+
+# text_justify_center, text_justify_left, text_justify_left_middle, text_print_list, resolve_uw_display, text_set_printable_area
+from texts import *
+
+# choices_horizontal_menu, choices_single_option, choices_multiple_options
+from choices import *
+
+PACKAGES_OPTIONS = {'APP_CHROME':False ,'APP_EDGE':False ,'APP_ONLYOFFICE':False ,'APP_GIMP':False ,
+                    'APP_KDENLIVE':False ,'APP_AVIDEMUX':False ,'APP_OBS':False ,'APP_QBITTORRENT':False ,
+                    'APP_TERMIUS':False ,'APP_REMMINA':False ,'APP_DARKTABLE':False ,'APP_WINE':False ,
+                    'APP_TELEGRAM':False,'GAME_KPAT':False,'GAME_STEAM':False,'GAME_PROTONUP':False,
+                    'GAME_RETROARCH':False, 'GAME_ES_DE':False, 'GAME_GAMESCOPE':False, 'GAME_MANGOHUD':False}
+                    
+PATH = os.path.dirname(__file__)+'/'
+                    
+def set_var_lang(var):
+	EN_FILE = 'misc/en_US.dat'
+	BR_FILE = 'misc/pt_BR.dat'
+	TEXT=''
+
+	match INT_LANG:
+		case 'en':
+			with open(PATH+EN_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+		case 'br':
+			with open(PATH+BR_FILE) as file:
+				for line in file:
+					line_row=line.split('=')
+					if line_row[0] == var:
+						TEXT = line_row[1].split(';')
+						if len(TEXT) == 1:
+							TEXT = str(TEXT[0].replace('\n',''))
+						else:
+							TEXT[len(TEXT)-1] = TEXT[len(TEXT)-1].replace('\n','')
+
+	return TEXT
+	
+def set_language(lang):
+
+	global YES_OR_NO , PROCEED_OR_ABORT, PROGRAM_TITLE2, WELCOME_TEXT2
+
+	YES_OR_NO = set_var_lang('YES_OR_NO')
+	PROCEED_OR_ABORT = set_var_lang('PROCEED_OR_ABORT')
+	PROGRAM_TITLE2 = set_var_lang('PROGRAM_TITLE2')
+	WELCOME_TEXT2 = set_var_lang('WELCOME_TEXT2')
+	
+	pass
+
+def initial_args(argv):
+	global INT_LANG, NO_GNOME_CUSTOMIZATION
+	INT_LANG = 'en'
+	NO_GNOME_CUSTOMIZATION = False
+
+	if len(sys.argv) > 1:
+		for i, parameter in enumerate(sys.argv):
+			match parameter.lower():
+				case '-h':
+					print(set_var_lang('HELP_ARG2'))
+					STEP = 10
+				case '-n':
+					NO_GNOME_CUSTOMIZATION = True
+				case '-i':
+					if i+1 < len(sys.argv):
+						if sys.argv[i+1] == 'en' or sys.argv[i+1]=='br':
+							INT_LANG = sys.argv[i+1]
+		
+	set_language(INT_LANG)
+
+def permanent_title(term, program_title): # Defines a header with three lines
+
+	position=list((0,0))
+	program_title = text_justify_center(term, position, program_title)
+	position[0]+=1
+	navigation = text_justify_center(term, position, 'Use arrows, ENTER and ESC to navigate and CTRL+C to abort')
+	print(term.clear())
+	sys.stdout.write(term.move(0, 0))
+	sys.stdout.write(term.bold(term.gray_on_blue(program_title)))
+	sys.stdout.write(term.bold(term.blue_on_gray(navigation)))
+	sys.stdout.write(term.csr(2, term.height))
+	sys.stdout.write(term.move(2, 0))
+	
+	pass
+
+def set_gnome():
+	WALLPAPER_FILE_PATH ='~/ArchInstall/assets/wallpaper1.jpg'
+	DESTINATION_PATH = '~/Pictures/'
+	subprocess.run(['sh', '-c','cp ' + WALLPAPER_FILE_PATH + ' ' + DESTINATION_PATH])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-options \'spanned\''])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri file:///home/renata/Pictures/wallpaper1.jpg'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.background picture-uri-dark file:///home/renata/Pictures/wallpaper1.jpg'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences button-layout \'appmenu:minimize,maximize,close\''])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface color-scheme prefer-dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface gtk-theme Breeze-Dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface icon-theme Tela-ubuntu-dark'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.interface accent-color orange'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.mutter dynamic-workspaces false'])
+	subprocess.run(['sh', '-c','gsettings set org.gnome.desktop.wm.preferences num-workspaces 3'])
+
+def gnome_kde():
+	global GNOME
+	
+	GNOME = False
+	
+	CURRENT_DESKTOP_BIN = subprocess.run(['sh','-c','echo $XDG_CURRENT_DESKTOP'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	CURRENT_DESKTOP = CURRENT_DESKTOP_BIN.stdout.decode('utf-8')
+	CURRENT_DESKTOP = CURRENT_DESKTOP.replace('\n','')
+	CURRENT_DESKTOP = CURRENT_DESKTOP.lower()
+	
+	if CURRENT_DESKTOP == 'gnome' and NO_GNOME_CUSTOMIZATION == False:
+		set_gnome()
+		GNOME = True
+	pass
+
+
+def install_yay(term, position):
+	global YAY
+	YAY = False
+	FINISH = False
+		
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Install AUR Helper (yay)?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','cd /tmp && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si --noconfirm'])
+			if GNOME == True:
+				gnome_extras()
+			FINISH = True
+			YAY = True
+			return True
+		else:
+			FINISH = True
+			return False
+			
+def gnome_extras():
+	subprocess.run(['sh', '-c','yay -Sy --noconfirm --needed raw-thumbnailer gnome-shell-extension-arch-update'])
+
+def apps_misc(term, position):
+	global PACKAGES_OPTIONS
+	
+	FINISH = False
+	OPTIONS = ['Browser - Google Chrome.',
+			   'Browser - Microsoft Edge.', 
+	           'Office Suite - Onlyoffice.',
+	           'Image Editor - Gimp (GNU Image Manipulation Program).',
+	           'Video Editor - KDEnlive.',
+	           'Video Editor - Avidemux.',
+	           'Broadcaster Software - OBS Studio.',
+	           'Torrent Client - QBittorrent.',
+	           'Terminal Client - Termius.',
+	           'Remote Desktop Client - Remmina.',
+	           'RAW Image Editor - Darktable.',
+	           'Windows Compatibility Layer - Wine.',
+	           'Instant Messaging - Telegram Desktop.']
+	
+	PRESERV_POSITION = position
+	
+	while FINISH == False:
+		position = PRESERV_POSITION
+		selected_items=choices_multiple_options(term, position, OPTIONS, 'Apps selection')
+		if selected_items != '0':
+			if 'Browser - Google Chrome.' in selected_items:
+				PACKAGES_OPTIONS['APP_CHROME'] = True
+			if 'Browser - Microsoft Edge.' in selected_items:
+				PACKAGES_OPTIONS['APP_EDGE'] = True
+			if 'Office Suite - Onlyoffice.' in selected_items:
+				PACKAGES_OPTIONS['APP_ONLYOFFICE'] = True
+			if 'Image Editor - Gimp (GNU Image Manipulation Program).' in selected_items:
+				PACKAGES_OPTIONS['APP_GIMP'] = True
+			if 'Video Editor - KDEnlive.' in selected_items:
+				PACKAGES_OPTIONS['APP_KDENLIVE'] = True
+			if 'Video Editor - Avidemux.' in selected_items:
+				PACKAGES_OPTIONS['APP_AVIDEMUX'] = True
+			if 'Broadcaster Software - OBS Studio.' in selected_items:
+				PACKAGES_OPTIONS['APP_OBS'] = True
+			if 'Torrent Client - QBittorrent.' in selected_items:
+				PACKAGES_OPTIONS['APP_QBITTORRENT'] = True
+			if 'Terminal Client - Termius.' in selected_items:
+				PACKAGES_OPTIONS['APP_TERMIUS'] = True
+			if 'Remote Desktop Client - Remmina.' in selected_items:
+				PACKAGES_OPTIONS['APP_REMMINA'] = True
+			if 'RAW Image Editor - Darktable.' in selected_items:
+				PACKAGES_OPTIONS['APP_DARKTABLE'] = True
+			if 'Windows Compatibility Layer - Wine.' in selected_items:
+				PACKAGES_OPTIONS['APP_WINE'] = True
+			if 'Instant Messaging - Telegram Desktop.' in selected_items:
+				PACKAGES_OPTIONS['APP_TELEGRAM'] = True
+		FINISH = True
+	return True
+
+def apps_gaming(term, position):
+	global PACKAGES_OPTIONS
+	
+	FINISH = False
+	OPTIONS = ['KDE Patience.',
+			   'Steam (Native).', 
+	           'ProtonUP-Qt',
+	           'Retroarch',
+	           'ES-DE (Emulationstation Desktop Edition).',
+	           'Gamescope',
+	           'MangoHUD']
+	
+	PRESERV_POSITION = position
+
+	while FINISH == False:
+		position = PRESERV_POSITION
+		selected_items=choices_multiple_options(term, position, OPTIONS, 'Apps selection')
+		if selected_items != '0':
+			if 'KDE Patience.' in selected_items:
+				PACKAGES_OPTIONS['GAME_KPAT'] = True
+			if 'Steam (Native).' in selected_items:
+				PACKAGES_OPTIONS['GAME_STEAM'] = True
+			if 'ProtonUP-Qt' in selected_items:
+				PACKAGES_OPTIONS['GAME_PROTONUP'] = True
+			if 'Retroarch' in selected_items:
+				PACKAGES_OPTIONS['GAME_RETROARCH'] = True
+			if 'ES-DE (Emulationstation Desktop Edition).' in selected_items:
+				PACKAGES_OPTIONS['GAME_ES_DE'] = True
+			if 'Gamescope' in selected_items:
+				PACKAGES_OPTIONS['GAME_GAMESCOPE'] = True
+			if 'MangoHUD' in selected_items:
+				PACKAGES_OPTIONS['GAME_MANGOHUD'] = True
+		FINISH = True
+	return True
+
+def virtualization(term, position):
+	FINISH = False
+		
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Install QEMU and Virt-Manager?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','sudo pacman -Rdd --noconfirm iptables'])
+			subprocess.run(['sh', '-c','sudo pacman -Sy --needed --noconfirm qemu-full virt-manager dnsmasq iptables-nft edk2-ovmf swtpm'])
+			subprocess.run(['sh', '-c','sudo sudo systemctl enable libvirtd'])
+			subprocess.run(['sh', '-c','sudo virsh net-autostart default'])
+			subprocess.run(['sh', '-c','sudo usermod $USER -aG libvirt'])
+			FINISH = True
+			YAY = True
+			return True
+		else:
+			FINISH = True
+			return False	
+	
+def install_packages():
+
+	PACKAGES_FILE_PATH = PATH + 'misc/second-packages.dat'
+	PACKAGES = ''
+	ALL_PACKAGES_KEYS = PACKAGES_OPTIONS.keys()
+
+	with open(PACKAGES_FILE_PATH) as file: # Open the file with packages names
+		PACKAGES_DAT = file.readlines() # Set packages_dat list variable where every line is a position
+		for idx1,PACKAGES_DAT_LINE in enumerate(PACKAGES_DAT): # Pass every single line present in the file
+			for idx2, ALL_PACKAGES_KEYS_LINE in enumerate(ALL_PACKAGES_KEYS): # Test every key in dictionary variable
+				if PACKAGES_OPTIONS[ALL_PACKAGES_KEYS_LINE]: # if Value == True, then
+					if PACKAGES_DAT_LINE.find(ALL_PACKAGES_KEYS_LINE)!=-1: # IF file line has a KEY
+						PACKAGES_SWAP = PACKAGES_DAT_LINE.split('=')
+						PACKAGES = PACKAGES + PACKAGES_SWAP[1].replace('\n','')
+
+	subprocess.run(['sh', '-c','yay -Sy --noconfirm --needed' + PACKAGES])
+	pass 
+
+def finish_app(term,position):
+	FINISH = False
+			
+	while FINISH == False:
+		text = text_justify_left(term, position, 'Remove "Welcome Wizard" from autostart?')
+		print(text)
+		position[0] += 1
+		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
+		if select_item == YES_OR_NO[0]:
+			subprocess.run(['sh', '-c','rm $HOME/.config/autostart/second.desktop'])		
+			FINISH = True
+			return True
+		else:
+			FINISH = True
+			return False
+
+def main():
+	STEP = 1
+	PRINTABLE_AREA = 100
+	position = list((0,0))
+
+	 # If on gnome, customize wallpaper, icons and color appearence
+	term = blessed.Terminal()
+	text_set_printable_area(term, PRINTABLE_AREA) # Define the usable area of screen (columns)
+	initial_args(sys.argv)
+	set_int_lang(term, INT_LANG)
+	gnome_kde()
+
+	with term.fullscreen():
+		try:
+			while True:
+				match STEP:
+					case 1: # Print inital statements and disk setup step
+						permanent_title(term, PROGRAM_TITLE2) # Set the header with PROGRAM_TITLE text
+						position = resolve_uw_display(term)
+						preserv_position = position
+						text_print_list(term, position, WELCOME_TEXT2)
+						position = resolve_uw_display(term)
+						step_title = text_justify_center(term, position, 'AUR Helper')
+						print(term.bold(term.gray_on_blue(step_title)))
+						position = resolve_uw_display(term,1)
+						install_yay(term, position)
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Apps (Misc).')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						apps_misc(term, position)
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Gaming.')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						apps_gaming(term, position)						
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Installing apps')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						install_packages()
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Virtualization')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						virtualization(term, position)
+						STEP += 1
+					case 2:
+						position = preserv_position
+						step_title = text_justify_center(term, position, 'Setup Complete')
+						print(term.bold(term.gray_on_blue(step_title))+term.clear_eos())
+						position = resolve_uw_display(term,1)
+						finish_app(term,position)
+						STEP += 1
+					case _:
+						break
+		except KeyboardInterrupt:
+			print('')
+			exit(0)
+
+	
+if __name__ == "__main__":
+    main()
