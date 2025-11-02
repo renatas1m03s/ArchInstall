@@ -2,8 +2,6 @@
 
 import blessed
 
-PRINTABLE_AREA = 100
-
 def text_set_printable_area(term, printable_area):
 	global PRINTABLE_AREA
 	
