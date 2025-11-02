@@ -1126,6 +1126,9 @@ def main():
 
 	term = blessed.Terminal()
 	
+	printable_area = term.width
+	text_set_printable_area(term, printable_area)
+	
 	initial_args(sys.argv)
 	set_int_lang(term, INT_LANG)
 		 
