@@ -293,7 +293,7 @@ def finish_app(term,position):
 		position[0] += 1
 		select_item=choices_horizontal_menu(term, position,YES_OR_NO)
 		if select_item == YES_OR_NO[0]:
-			subprocess.run(['sh', '-c','rm $HOME/.config/autostart/second.desktop'])		
+			subprocess.run(['sh', '-c','rm $HOME/.config/autostart/post-install.desktop'])		
 			FINISH = True
 			return True
 		else:

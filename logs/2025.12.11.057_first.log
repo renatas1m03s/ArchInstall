@@ -1,0 +1,77 @@
+[1mUser and system definitions:[m
+ 
+Main user: [1mrenata[m
+Display name: [1mRenata Maria[m
+Hostname: [1msagittarius[m
+System locale: [1m'en_US.UTF-8'[m
+Time Zone: [1mAmerica/Fortaleza[m
+Keyboard config: [1mbr-abnt2[m
+[1mThe following changes will be made at disks:[m
+ 
+Create and enable swapfile - 31878008K
+[1mThis are the chose options:[m
+ 
+ - GNOME Basic - Minimal options - file manager, terminal, tweaks...
+
+ - Internet Browser - Firefox browser
+
+ - Video Player - VLC
+
+ - Text Editor - Geany and plugins
+
+ - System Monitor - Conky
+
+ - Usefull extras - p7zip, btop and yt-dlp
+
+ - NVidia combo - For systems with GPUs NVidia
+
+
+Command: ['sh', '-c', 'pacstrap /mnt base linux-firmware linux linux-headers dkms base-devel amd-ucode intel-ucode reflector']
+Command return:0
+<Popen: returncode: 0 args: ['sh', '-c', 'pacstrap /mnt base linux-firmware ...>
+
+Command: ['sh', '-c', 'genfstab -U -p /mnt >> /mnt/etc/fstab']
+Command return:0
+<Popen: returncode: 0 args: ['sh', '-c', 'genfstab -U -p /mnt >> /mnt/etc/fs...>
+
+Command: ['sh', '-c', 'sh /root/./ArchInstall/scripts/pacman-conf.sh']
+Command return:0
+CompletedProcess(args=['sh', '-c', 'sh /root/./ArchInstall/scripts/pacman-conf.sh'], returncode=0, stdout=b'', stderr=b'')
+
+Command: ['sh', '-c', 'cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist']
+Command return:0
+CompletedProcess(args=['sh', '-c', 'cp -v /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist'], returncode=0, stdout=b"'/etc/pacman.d/mirrorlist' -> '/mnt/etc/pacman.d/mirrorlist'\n", stderr=b'')
+
+Command: ['sh', '-c', 'arch-chroot /mnt pacman -Sy --noconfirm --needed nano vim vi fish dosfstools os-prober mtools dialog sudo rsync grub-efi-x86_64 efibootmgr openssh exfat-utils plymouth cronie networkmanager modemmanager inetutils dnsutils sof-firmware git base-devel wget nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader lib32-pipewire bluez-utils xorg gnome glfw-wayland egl-wayland gnome-nettool gnome-usage gnome-multi-writer gnome-terminal fwupd openconnect networkmanager-openconnect gnome-tweaks gnome-browser-connector dconf-editor breeze-gtk tuned tuned-ppd python-blessed alacritty gnome-shell-extension-appindicator gnome-shell-extension-dash-to-panel gnome-shell-extension-vitals ptyxis firefox vlc vlc-plugin-ffmpeg geany geany-plugins conky conky-manager2 fastfetch openvpn usb_modeswitch p7zip btop pacman-contrib adobe-source-han-sans-otc-fonts adobe-source-han-serif-otc-fonts noto-fonts noto-fonts-cjk noto-fonts-emoji yt-dlp']
+Command return:0
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt pacman -Sy --noconfirm --needed nano vim vi fish dosfstools os-prober mtools dialog sudo rsync grub-efi-x86_64 efibootmgr openssh exfat-utils plymouth cronie networkmanager modemmanager inetutils dnsutils sof-firmware git base-devel wget nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader lib32-pipewire bluez-utils xorg gnome glfw-wayland egl-wayland gnome-nettool gnome-usage gnome-multi-writer gnome-terminal fwupd openconnect networkmanager-openconnect gnome-tweaks gnome-browser-connector dconf-editor breeze-gtk tuned tuned-ppd python-blessed alacritty gnome-shell-extension-appindicator gnome-shell-extension-dash-to-panel gnome-shell-extension-vitals ptyxis firefox vlc vlc-plugin-ffmpeg geany geany-plugins conky conky-manager2 fastfetch openvpn usb_modeswitch p7zip btop pacman-contrib adobe-source-han-sans-otc-fonts adobe-source-han-serif-otc-fonts noto-fonts noto-fonts-cjk noto-fonts-emoji yt-dlp'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt ln -sf /usr/share/zoneinfo/America/Fortaleza /etc/localtime'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt timedatectl set-ntp 1'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt timedatectl set-timezone America/Fortaleza'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt sed -i s/#pt_BR.UTF-8/pt_BR.UTF-8/g /etc/locale.gen'], returncode=0)
+CompletedProcess(args=['sh', '-c', "arch-chroot /mnt sed -i s/#'en_US.UTF-8'/'en_US.UTF-8'/g /etc/locale.gen"], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt locale-gen'], returncode=0)
+CompletedProcess(args=['sh', '-c', "echo LANG='en_US.UTF-8' >> /mnt/etc/locale.conf"], returncode=0)
+CompletedProcess(args=['sh', '-c', 'localectl set-keymap br-abnt2'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'cp -v /etc/vconsole.conf /mnt/etc/vconsole.conf'], returncode=0)
+0
+CompletedProcess(args=['sh', '-c', "arch-chroot /mnt useradd -m -g users -G wheel -c 'Renata Maria' -s /usr/bin/fish -d /home/renata renata"], returncode=0)
+CompletedProcess(args=['sh', '-c', 'mkdir /mnt/home/renata/ArchInstall'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'cp -Rv /root/./ArchInstall/* /mnt/home/renata/ArchInstall/'], returncode=0)
+CompletedProcess(args=['sh', '-c', "arch-chroot /mnt sh /home/renata/ArchInstall/scripts/setpass.sh '' renata"], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt sh /home/renata/ArchInstall/scripts/mkgrub.sh renata'], returncode=0)
+CompletedProcess(args=['sh', '-c', "sed -i 's/#AddressFamily any/AddressFamily inet/g' /mnt/etc/ssh/sshd_config"], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable NetworkManager'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable sshd'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable bluetooth'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable cronie'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable ModemManager'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable tuned'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable tuned-ppd'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt systemctl enable gdm'], returncode=0)
+CompletedProcess(args=['sh', '-c', '7z x /root/./ArchInstall/assets/telaicons.7z -o/mnt/home/renata/.local/share/icons/'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'cp -Rv /root/./ArchInstall/assets/PoweredByArchV2/* /mnt/usr/share/plymouth/themes/PoweredByArchV2/'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'cp -v /root/./ArchInstall/assets/plymouthd.conf /mnt/etc/plymouth/'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt sh /home/renata/ArchInstall/scripts/setinitram.sh'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'arch-chroot /mnt mkinitcpio -P'], returncode=0)
+CompletedProcess(args=['sh', '-c', 'cp -v /root/./ArchInstall/assets/functions/* /mnt/home/renata/.config/fish/functions/'], returncode=0)
