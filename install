@@ -1080,7 +1080,7 @@ def save_log_file():
 	subprocess.run(['sh','-c','cp -v ' + COMPLETE_LOG_FILE_NAME + ' ' + FINAL_LOG_FILE_PATH])
 	
 def set_owner():
-	subprocess.run(['sh', '-c','arch-chroot /mnt /usr/bin/fish -c \'chown -Rv ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
+	subprocess.run(['sh', '-c','arch-chroot /mnt /usr/bin/fish -c \'chown -R ' + USERNAME + ':users /home/' + USERNAME + '/{\'\',\'.\'}*\''])
    
 def main():
 	global STEP
